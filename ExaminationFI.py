@@ -125,4 +125,3 @@ DF['cog_mat_score_com'.upper()] = stratified_scaling(df, target_col='cog_mat_sco
 strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','COG_AFT_STARTLANG_COM','COG_AFT_LANG_COM']
 DF['cog_aft_score_2_com'.upper()] = stratified_scaling(df, target_col='cog_aft_score_2_com'.upper(),
                                                        group_col=strat_list, inverse=True)
-print(DF)
