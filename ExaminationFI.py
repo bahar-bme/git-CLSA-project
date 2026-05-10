@@ -85,7 +85,14 @@ required_columns =['AGE_NMBR_COM',
                    'cog_reyi_score_com','COG_REYI_STARTLANG_COM','COG_REYI_LANG_COM',
                    'cog_reyii_score_com','COG_REYII_STARTLANG_COM','COG_REYII_LANG_COM',
                    'cog_mat_score_com','COG_MAT_STARTLANG_COM','COG_MAT_LANG_COM',
-                   'cog_aft_score_2_com','COG_AFT_STARTLANG_COM','COG_AFT_LANG_COM']
+                   'cog_aft_score_2_com','COG_AFT_STARTLANG_COM','COG_AFT_LANG_COM',
+                   'fas_f_score_com','fas_a_score_com','fas_s_score_com',
+                   'FAS_F_LANG_COM','FAS_A_LANG_COM','FAS_S_LANG_COM',
+                   'tmt_itpexact_com','tmt_acc_com','tmt_rmd_com','TMT_LANG_COM',
+                   'pmt_itp_com','pmt_rem_com','pmt_acr_com','PMT_LANG_COM',
+                   'crt_mrtwout_corrans_com','CRT_LANG_COM',
+                   'stp_dottime_ss_com','stp_coltime_ss_com','STP_STARTLANG_COM']
+
 
 required_columns = [f.upper() for f in required_columns]
 
@@ -125,3 +132,49 @@ DF['cog_mat_score_com'.upper()] = stratified_scaling(df, target_col='cog_mat_sco
 strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','COG_AFT_STARTLANG_COM','COG_AFT_LANG_COM']
 DF['cog_aft_score_2_com'.upper()] = stratified_scaling(df, target_col='cog_aft_score_2_com'.upper(),
                                                        group_col=strat_list, inverse=True)
+
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','FAS_F_LANG_COM']
+DF['FAS_F_SCORE'] = stratified_scaling(df, target_col='fas_f_score_com'.upper(),
+                                                       group_col=strat_list, inverse=True)
+
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','FAS_A_LANG_COM']
+DF['FAS_A_SCORE'] = stratified_scaling(df, target_col='fas_a_score_com'.upper(),
+                                                       group_col=strat_list, inverse=True)
+
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','FAS_S_LANG_COM']
+DF['FAS_S_SCORE'] = stratified_scaling(df, target_col='fas_s_score_com'.upper(),
+                                                       group_col=strat_list, inverse=True)                                                       
+
+DF['Controlled_Oral_Word_Association']=pd.concat([DF['FAS_A_SCORE'], DF['FAS_F_SCORE'], DF['FAS_S_SCORE']], axis=1).mean(axis=1,skipna=True)
+
+df['Time_Based_Memory'] = df['tmt_rmd_com'.upper()].add(df['tmt_acc_com'.upper()], fill_value=0).add(df['tmt_itpexact_com'.upper()], fill_value=0)
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','TMT_LANG_COM']
+DF['Time_Based_Memory'] = stratified_scaling(df, target_col='Time_Based_Memory',
+                                                       group_col=strat_list, inverse=True)                                                       
+
+df['Event_Based_Memory'] = df['pmt_itp_com'.upper()].add(df['pmt_rem_com'.upper()],fill_value=0).add(df['pmt_acr_com'.upper()],fill_value=0)
+
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','PMT_LANG_COM']
+DF['Event_Based_Memory'] = stratified_scaling(df, target_col='Event_Based_Memory',
+                                                       group_col=strat_list, inverse=True)                                                       
+
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','CRT_LANG_COM']
+DF['crt_mrtwout_corrans_com'.upper()] = stratified_scaling(df, target_col='crt_mrtwout_corrans_com'.upper(),
+                                                       group_col=strat_list, inverse=True)                                                       
+
+
+df['Stroop_Test_Interference_Time'] = df['stp_dottime_ss_com'.upper()]-df['stp_coltime_ss_com'.upper()]
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','STP_STARTLANG_COM']
+DF['Stroop_Test_Interference_Time'] = stratified_scaling(df, target_col='Stroop_Test_Interference_Time',
+                                                       group_col=strat_list, inverse=True)                                                       
+# Domain 3: Cardiac
+
+
+print(DF)
+#print(K)
+print(df['Stroop_Test_Interference_Time'])
+#print(max(df['tmt_itpexact_com'.upper()]))
+import matplotlib.pyplot as plt
+import numpy as np
+plt.hist(DF['Stroop_Test_Interference_Time'], bins=20,color='skyblue', edgecolor='black')
+plt.show()
