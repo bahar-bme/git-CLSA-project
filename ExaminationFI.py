@@ -91,8 +91,11 @@ required_columns =['AGE_NMBR_COM',
                    'tmt_itpexact_com','tmt_acc_com','tmt_rmd_com','TMT_LANG_COM',
                    'pmt_itp_com','pmt_rem_com','pmt_acr_com','PMT_LANG_COM',
                    'crt_mrtwout_corrans_com','CRT_LANG_COM',
-                   'stp_dottime_ss_com','stp_coltime_ss_com','STP_STARTLANG_COM']
-
+                   'stp_dottime_ss_com','stp_coltime_ss_com','STP_STARTLANG_COM',
+                   'bp_systolic_avg_com','bp_diastolic_avg_com','bp_pulse_avg_com',
+                   'bp_pulse_avg_com',
+                    ]
+#'imt_r_avg_com','imt_l_avg_com'
 
 required_columns = [f.upper() for f in required_columns]
 
@@ -168,6 +171,14 @@ strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','STP_STARTLANG_COM']
 DF['Stroop_Test_Interference_Time'] = stratified_scaling(df, target_col='Stroop_Test_Interference_Time',
                                                        group_col=strat_list, inverse=True)                                                       
 # Domain 3: Cardiac
+DF["bp_systolic_avg_com".upper()]  = (df["bp_systolic_avg_com".upper()]<90) | (df["bp_systolic_avg_com".upper()]>140)    
+DF["bp_diastolic_avg_com".upper()] = (df["bp_diastolic_avg_com".upper()]<=60)
+DF["bp_diastolic_avg_com".upper()] = (df["bp_diastolic_avg_com".upper()]<=60)
+df["pulse_pressure".upper()]       = df['bp_systolic_avg_com'.upper()]-df['bp_diastolic_avg_com'.upper()]
+DF['pulse_pressure'.upper()]       = (df['pulse_pressure'.upper()]<30) | (df['pulse_pressure'.upper()]>60)
+DF['bp_pulse_avg_com'.upper()]     = (df['bp_pulse_avg_com'.upper()]<60) | (df['bp_pulse_avg_com'.upper()]>99)
+#DF['imt_r_avg_com'.upper()]        = (df['imt_r_avg_com'.upper()]<0.5) | (df['imt_r_avg_com'.upper()]>0.8)
+#DF['imt_l_avg_com'.upper()]         = (df['imt_l_avg_com'.upper()]<0.5) | (df['imt_l_avg_com'.upper()]>0.8)
 
 
 print(DF)
