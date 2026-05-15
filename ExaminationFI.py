@@ -100,7 +100,16 @@ required_columns =['AGE_NMBR_COM',
                    'dxa_wb_lrib_bmd_com', 'dxa_wb_rrib_bmd_com','dxa_wb_t_s_bmd_com',
                    'dxa_wb_l_s_bmd_com','dxa_wb_pelv_bmd_com','dxa_wb_lleg_bmd_com',
                    'dxa_wb_rleg_bmd_com','DXA_WB_WBTOT_BMD_COM','DXA_OI_APDG_LEAN_MASS_H2_COM',
-                   'DXA_OI_TOTAL_PERCENT_FAT_COM']
+                   'DXA_OI_TOTAL_PERCENT_FAT_COM',
+                   'DXA_WBC_LARM_PFAT_COM','DXA_WBC_RARM_PFAT_COM','DXA_WBC_L_LEG_PFAT_COM',
+                   'DXA_WBC_R_LEG_PFAT_COM','DXA_WBC_TRUNK_PFAT_COM','DXA_WBC_HEAD_PFAT_COM',
+                   'spr_fvc_t1_com','spr_fvc_t2_com','spr_fvc_t3_com','spr_fvc_t4_com',
+                   'spr_fvc_t5_com','spr_fvc_t6_com','spr_fvc_t7_com','spr_fvc_t8_com',
+                   'SPR_FEV1_FVC_T1_COM','SPR_FEV1_FVC_T2_COM','SPR_FEV1_FVC_T3_COM',
+                   'SPR_FEV1_FVC_T4_COM','SPR_FEV1_FVC_T5_COM','SPR_FEV1_FVC_T6_COM',
+                   'SPR_FEV1_FVC_T7_COM','SPR_FEV1_FVC_T8_COM',
+                   'va_etdrs_l_rslt_com']
+
 #'imt_r_avg_com','imt_l_avg_com'
 #'dxa_wb_wbtot_t_com'
 required_columns = [f.upper() for f in required_columns]
@@ -222,16 +231,46 @@ DF['DXA_Osteoporosis_BMD_T'].loc[Osteoporosis_T_Count==1]=0.5
 DF['DXA_Osteoporosis_BMD_T'].loc[Osteoporosis_T_Count==0]=0
 DF['DXA_OI_APDG_LEAN_MASS_H2_COM'] = stratified_scaling(df, 'DXA_OI_APDG_LEAN_MASS_H2_COM', inverse=True)
 DF['DXA_OI_TOTAL_PERCENT_FAT_COM'] = stratified_scaling(df, 'DXA_OI_TOTAL_PERCENT_FAT_COM', inverse=False)
+BodyFatAreas =['DXA_WBC_LARM_PFAT_COM','DXA_WBC_RARM_PFAT_COM','DXA_WBC_L_LEG_PFAT_COM',
+                   'DXA_WBC_R_LEG_PFAT_COM','DXA_WBC_TRUNK_PFAT_COM','DXA_WBC_HEAD_PFAT_COM']
+BodyFatAreas_Individual = df[BodyFatAreas]
+BodyFatAreas_P95 = BodyFatAreas_Individual.quantile(0.95)
+ExcessBodyFatArea=BodyFatAreas_Individual>=BodyFatAreas_P95
+ExcessBodyFatArea_Count=ExcessBodyFatArea.sum(axis=1)
+DF['AGGREGATE_BODY_FAT'] = 'Nan'
+DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==0]=0
+DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==1]=0.2
+DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==2]=0.4
+DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==3]=0.5
+DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==4]=0.8
+DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count>=5]=1
 
+# Domain 5: Spirometry measures
+FVC = ['spr_fvc_t1_com'.upper(),'spr_fvc_t2_com'.upper(),'spr_fvc_t3_com'.upper(),
+         'spr_fvc_t4_com'.upper(),'spr_fvc_t5_com'.upper(),'spr_fvc_t6_com'.upper(),
+         'spr_fvc_t7_com'.upper(),'spr_fvc_t8_com'.upper()]
+FVCDF = df[FVC]
+df['FVC_Max'.upper()] = FVCDF.max(axis=1, skipna=True)
+DF['FVC_Max'.upper()] = stratified_scaling(df, 'FVC_Max'.upper() , inverse=True)
+FEV1 = ['SPR_FEV1_FVC_T1_COM','SPR_FEV1_FVC_T2_COM','SPR_FEV1_FVC_T3_COM',
+        'SPR_FEV1_FVC_T4_COM','SPR_FEV1_FVC_T5_COM','SPR_FEV1_FVC_T6_COM',
+        'SPR_FEV1_FVC_T7_COM','SPR_FEV1_FVC_T8_COM']
+FEV1DF = df[FEV1]
+df['FEV1_MAX'] = FEV1DF.max(axis=1, skipna=True)
+DF['FEV1_MAX'] = stratified_scaling(df, 'FEV1_MAX' , inverse=True)
+
+# Domain 6: Hearing and vision
+DF['va_etdrs_l_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_l_rslt_com'.upper() , inverse=True)
+DF['va_etdrs_l_rslt_com'.upper()].loc[df['va_etdrs_l_rslt_com'.upper()]>=1]=1
 print(DF)
 
 #print(K)
 #print(df['ecg_result_com'.upper()])
 #print(max(df['tmt_itpexact_com'.upper()]))
-#import matplotlib.pyplot as plt
-#import numpy as np
-#plt.hist(DF['Stroop_Test_Interference_Time'], bins=20,color='skyblue', edgecolor='black')
-#plt.show()
+import matplotlib.pyplot as plt
+import numpy as np
+plt.hist(DF['va_etdrs_l_rslt_com'.upper()], bins=20,color='skyblue', edgecolor='black')
+plt.show()
 
 """
 # Select boolean columns and overwrite them with 1 and 0
