@@ -108,7 +108,11 @@ required_columns =['AGE_NMBR_COM',
                    'SPR_FEV1_FVC_T1_COM','SPR_FEV1_FVC_T2_COM','SPR_FEV1_FVC_T3_COM',
                    'SPR_FEV1_FVC_T4_COM','SPR_FEV1_FVC_T5_COM','SPR_FEV1_FVC_T6_COM',
                    'SPR_FEV1_FVC_T7_COM','SPR_FEV1_FVC_T8_COM',
-                   'va_etdrs_l_rslt_com']
+                   'va_etdrs_l_rslt_com','va_etdrs_r_rslt_com','ton_iopcc_r_com','ton_iopcc_l_com',
+                   'ton_ch_l_com','ton_ch_r_com','ton_iopg_r_com','ton_iopg_l_com',
+                   'bp_systolic_avg_com','bp_diastolic_avg_com',
+                   'hrg_right_500_com','hrg_right_1k_com','hrg_right_2k_com','hrg_right_4k_com',
+                   'hrg_left_500_com','hrg_left_1k_com','hrg_left_2k_com','hrg_left_4k_com']
 
 #'imt_r_avg_com','imt_l_avg_com'
 #'dxa_wb_wbtot_t_com'
@@ -261,16 +265,41 @@ DF['FEV1_MAX'] = stratified_scaling(df, 'FEV1_MAX' , inverse=True)
 
 # Domain 6: Hearing and vision
 DF['va_etdrs_l_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_l_rslt_com'.upper() , inverse=True)
-DF['va_etdrs_l_rslt_com'.upper()].loc[df['va_etdrs_l_rslt_com'.upper()]>=1]=1
+DF['va_etdrs_r_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_r_rslt_com'.upper() , inverse=True)
+DF['ton_iopcc_r_com'.upper()] = (df['ton_iopcc_r_com'.upper()]<11) | (df['ton_iopcc_r_com'.upper()]>21)
+DF['ton_iopcc_l_com'.upper()] = (df['ton_iopcc_l_com'.upper()]<11) | (df['ton_iopcc_l_com'.upper()]>21)
+DF['ton_ch_r_com'.upper()] = df['ton_ch_r_com'.upper()]<=9
+DF['ton_ch_l_com'.upper()] = df['ton_ch_l_com'.upper()]<=9
+
+Mean_Arterial_Pressure = df['bp_systolic_avg_com'.upper()] + 2*df['bp_diastolic_avg_com'.upper()] 
+Mean_Intraocular_Pressure = (df['ton_iopg_r_com'.upper()] + df['ton_iopg_l_com'.upper()])/2
+Ocular_Perfusion_Pressure = ((2/3)*Mean_Arterial_Pressure) - Mean_Intraocular_Pressure
+DF['Mean_Ocular_Perfusion_Pressure'.upper()] = Ocular_Perfusion_Pressure >= 42
+
+columns_to_average = ['hrg_right_500_com'.upper(),'hrg_right_1k_com'.upper(),
+                      'hrg_right_2k_com'.upper(),'hrg_right_4k_com'.upper()]
+
+# 2. Calculate the average across the rows (axis=1)
+df['Pure_Tone_R'.upper()] = df[columns_to_average].mean(axis=1)
+DF['Pure_Tone_R'.upper()] = stratified_scaling(df, 'Pure_Tone_R'.upper() , inverse=True)
+
+columns_to_average = ['hrg_left_500_com'.upper(),'hrg_left_1k_com'.upper(),
+                      'hrg_left_2k_com'.upper(),'hrg_left_4k_com'.upper()]
+
+# 2. Calculate the average across the rows (axis=1)
+df['Pure_Tone_L'.upper()] = df[columns_to_average].mean(axis=1)
+DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=True)
+
+
 print(DF)
 
 #print(K)
 #print(df['ecg_result_com'.upper()])
 #print(max(df['tmt_itpexact_com'.upper()]))
-import matplotlib.pyplot as plt
-import numpy as np
-plt.hist(DF['va_etdrs_l_rslt_com'.upper()], bins=20,color='skyblue', edgecolor='black')
-plt.show()
+#import matplotlib.pyplot as plt
+#import numpy as np
+#plt.hist(DF['va_etdrs_r_rslt_com'.upper()], bins=20,color='skyblue', edgecolor='black')
+#plt.show()
 
 """
 # Select boolean columns and overwrite them with 1 and 0
