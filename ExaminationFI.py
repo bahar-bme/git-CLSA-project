@@ -7,6 +7,7 @@ Created on Sun May  3 21:06:49 2026
 "FI-EXAMINATION"  
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+import numpy as np
 
 file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_Baseline_CoPv7.csv'
 # Define specific dtypes for columns to optimize memory
@@ -76,7 +77,7 @@ def stratified_scaling(df, target_col, group_col='SEX_ASK_COM', inverse=False):
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 #print(ColumnNames)
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
-FIExamination = 47;DF = pd.DataFrame()
+FIExaminationCount = 47;DF = pd.DataFrame()
 
 required_columns =['AGE_NMBR_COM',
                    'SEX_ASK_COM', 'ED_HIGH_COM', 
@@ -114,24 +115,25 @@ required_columns =['AGE_NMBR_COM',
                    'hrg_right_500_com','hrg_right_1k_com','hrg_right_2k_com','hrg_right_4k_com',
                    'hrg_left_500_com','hrg_left_1k_com','hrg_left_2k_com','hrg_left_4k_com']
 
+
 #'imt_r_avg_com','imt_l_avg_com'
 #'dxa_wb_wbtot_t_com'
 required_columns = [f.upper() for f in required_columns]
-
 required_columns.insert(0,'entity_id')
 
 
 df = pd.read_csv(file_path, usecols=required_columns)
-"""
+""""
 IsEmpty = df.isna() | (df == "")
 DataNA = IsEmpty.sum(axis=1)
-RowsToDrop = DataNA.index[DataNA>FIBlood*0.2]
+RowsToDrop = DataNA.index[DataNA>FIExamination*0.2]
 df.drop(RowsToDrop, inplace=True)
 IsEmpty = df.isna() | (df == "")
 DataNA = IsEmpty.sum(axis=1)
 NotEmpty = ~IsEmpty
 DataAvailable = NotEmpty.sum(axis=1)-3
 """
+
 # Domain 1: Physical Performance
 DF['wlk_time_com'.upper()] = stratified_scaling(df, 'wlk_time_com'.upper() , inverse=False)
 DF['cr_avg_time_com'.upper()] = stratified_scaling(df, 'cr_avg_time_com'.upper(), inverse=False)
@@ -197,7 +199,7 @@ DF['pulse_pressure'.upper()]       = (df['pulse_pressure'.upper()]<=30) | (df['p
 DF['bp_pulse_avg_com'.upper()]     = (df['bp_pulse_avg_com'.upper()]<=60) | (df['bp_pulse_avg_com'.upper()]>99)
 #DF['imt_r_avg_com'.upper()]        = (df['imt_r_avg_com'.upper()]<0.5) | (df['imt_r_avg_com'.upper()]>0.8)
 #DF['imt_l_avg_com'.upper()]         = (df['imt_l_avg_com'.upper()]<0.5) | (df['imt_l_avg_com'.upper()]>0.8)
-DF['ecg_result_com'.upper()] = 'Nan'
+DF['ecg_result_com'.upper()] = np.nan
 DF['ecg_result_com'.upper()].loc[(df['ecg_result_com'.upper()] == 4) | (df['ecg_result_com'.upper()] == 5)]= 1
 DF['ecg_result_com'.upper()].loc[df['ecg_result_com'.upper()] == 3] = 0.66
 DF['ecg_result_com'.upper()].loc[df['ecg_result_com'.upper()] == 2] = 0.33
@@ -210,13 +212,13 @@ DF['ecg_r_axis_com'.upper()] = (df['ecg_r_axis_com'.upper()]<-30) | (df['ecg_r_a
 DF['ecg_t_axis_com'.upper()] = (df['ecg_t_axis_com'.upper()]<0) | (df['ecg_t_axis_com'.upper()]>90)
 DF['ecg_p_duration_com'.upper()] = df['ecg_p_duration_com'.upper()]>120
 # Domain 4: Anthropometric measures
-DF['hwt_dbmi_com'.upper()] = 'Nan'
+DF['hwt_dbmi_com'.upper()] = np.nan
 DF['hwt_dbmi_com'.upper()].loc[(df['hwt_dbmi_com'.upper()]<=18.5)|(df['hwt_dbmi_com'.upper()]>=30)] = 1
 DF['hwt_dbmi_com'.upper()].loc[(df['hwt_dbmi_com'.upper()]>=25)&(df['hwt_dbmi_com'.upper()]<=29.9)] = 0.5 
 DF['hwt_dbmi_com'.upper()].loc[(df['hwt_dbmi_com'.upper()]>=18.5)&(df['hwt_dbmi_com'.upper()]<=24.9)] = 0
 DF['whc_ratio_com'.upper()] = ((df['SEX_ASK_COM']=='M')&(df['whc_ratio_com'.upper()]>0.9)) | ((df['SEX_ASK_COM']=='F')&(df['whc_ratio_com'.upper()]>0.85))
 DXA_WB_WBTOT_BMD_T_COM = (df['DXA_WB_WBTOT_BMD_COM']-df['DXA_WB_WBTOT_BMD_COM'].mean()) /df['DXA_WB_WBTOT_BMD_COM'].std()
-DF['DXA_WB_WBTOT_T_COM'.upper()] = 'Nan'
+DF['DXA_WB_WBTOT_T_COM'.upper()] = np.nan
 DF['DXA_WB_WBTOT_T_COM'.upper()].loc[DXA_WB_WBTOT_BMD_T_COM<=-2.5]=1
 DF['DXA_WB_WBTOT_T_COM'.upper()].loc[(DXA_WB_WBTOT_BMD_T_COM>=-2.5)&(DXA_WB_WBTOT_BMD_T_COM<1)]=0.5
 DF['DXA_WB_WBTOT_T_COM'.upper()].loc[DXA_WB_WBTOT_BMD_T_COM<=-1]=0
@@ -241,7 +243,7 @@ BodyFatAreas_Individual = df[BodyFatAreas]
 BodyFatAreas_P95 = BodyFatAreas_Individual.quantile(0.95)
 ExcessBodyFatArea=BodyFatAreas_Individual>=BodyFatAreas_P95
 ExcessBodyFatArea_Count=ExcessBodyFatArea.sum(axis=1)
-DF['AGGREGATE_BODY_FAT'] = 'Nan'
+DF['AGGREGATE_BODY_FAT'] = np.nan
 DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==0]=0
 DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==1]=0.2
 DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==2]=0.4
@@ -290,8 +292,45 @@ columns_to_average = ['hrg_left_500_com'.upper(),'hrg_left_1k_com'.upper(),
 df['Pure_Tone_L'.upper()] = df[columns_to_average].mean(axis=1)
 DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=True)
 
-
+print(list(DF.columns))
+print(df.shape)
+print(DF.shape)
 print(DF)
+
+RAWDF=DF
+IsEmpty = DF.isna() | (DF == "")
+DataNA = IsEmpty.sum(axis=1)
+RowsToDrop = DataNA.index[DataNA>FIExaminationCount*0.2]
+DF.drop(RowsToDrop, inplace=True)
+IsEmpty = DF.isna() | (DF == "")
+NotEmpty = ~IsEmpty
+DataAvailable = NotEmpty.sum(axis=1)
+
+print(DataAvailable)
+print(DF.dtypes)
+print(DF['ECG_RESULT_COM'])
+DeficitsCount = DF.sum(axis=1)
+FIExamination = DeficitsCount/DataAvailable
+FIExaminationData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']]
+FIExaminationData['FI_Examination'] = FIExamination
+#FIExaminationData.loc[:,'FI_Examination'] = FIExamination
+
+from pathlib import Path
+
+# Define the folder and file name
+output_file = Path(r"E:\CLSA\CLSA\results\FIExamination_BL.xlsx")
+
+# Create the folder automatically if it is missing
+output_file.parent.mkdir(parents=True, exist_ok=True)
+
+# Save the DataFrame
+FIExaminationData.to_excel(output_file, index=False)
+
+
+
+
+"""
+
 
 #print(K)
 #print(df['ecg_result_com'.upper()])
@@ -301,7 +340,6 @@ print(DF)
 #plt.hist(DF['va_etdrs_r_rslt_com'.upper()], bins=20,color='skyblue', edgecolor='black')
 #plt.show()
 
-"""
 # Select boolean columns and overwrite them with 1 and 0
 bool_cols = df.select_dtypes(include='bool').columns
 df[bool_cols] = df[bool_cols].astype(int)

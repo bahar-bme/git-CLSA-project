@@ -16,7 +16,7 @@ file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 print(ColumnNames)
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
-FIBlood = 22;DF = pd.DataFrame()
+FIBloodCount = 22;DF = pd.DataFrame()
 
 required_columns =['entity_id','AGE_NMBR_COM',
                    'SEX_ASK_COM','BLD_GR_PER_COM','BLD_Hct_COM',
@@ -30,12 +30,13 @@ required_columns =['entity_id','AGE_NMBR_COM',
 df = pd.read_csv(file_path, usecols=required_columns)
 IsEmpty = df.isna() | (df == "")
 DataNA = IsEmpty.sum(axis=1)
-RowsToDrop = DataNA.index[DataNA>FIBlood*0.2]
+RowsToDrop = DataNA.index[DataNA>FIBloodCount*0.2]
 df.drop(RowsToDrop, inplace=True)
 IsEmpty = df.isna() | (df == "")
 DataNA = IsEmpty.sum(axis=1)
 NotEmpty = ~IsEmpty
 DataAvailable = NotEmpty.sum(axis=1)-3
+print(DataAvailable)
 DF["BLD_GR_PER_COM"] = (df["BLD_GR_PER_COM"]<45) | (df["BLD_GR_PER_COM"]>75)    
 DF["BLD_Hct_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hct_COM']<0.41)|(df['BLD_Hct_COM']>0.53)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hct_COM']<0.36)|(df['BLD_Hct_COM']>0.46)))
 DF["BLD_LY_PER_COM"] = (df["BLD_LY_PER_COM"]<22) | (df["BLD_LY_PER_COM"]>44) 
@@ -59,8 +60,33 @@ DF["BLD_FT4_COM"] = df["BLD_FT4_COM"]>23.2
 DF["BLD_FERR_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_FERR_COM']<20)|(df['BLD_FERR_COM']>250)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_FERR_COM']<10)|(df['BLD_FERR_COM']>120)))
 DF["BLD_CHOL_COM"] = (df["BLD_CHOL_COM"]<3.9) | (df["BLD_CHOL_COM"]>6.5)
 DF["BLD_TRIG_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_TRIG_COM']<0.45)|(df['BLD_TRIG_COM']>1.81)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_TRIG_COM']<0.36)|(df['BLD_TRIG_COM']>1.12)))
+
+RAWDF=DF
+
+IsEmpty = DF.isna() | (DF == "")
+DataNA = IsEmpty.sum(axis=1)
+RowsToDrop = DataNA.index[DataNA>FIBloodCount*0.2]
+DF.drop(RowsToDrop, inplace=True)
+IsEmpty = DF.isna() | (DF == "")
+NotEmpty = ~IsEmpty
+DataAvailable = NotEmpty.sum(axis=1)
+print(DataAvailable)
+
 DeficitsCount = DF.sum(axis=1)
 FIBlood = DeficitsCount/DataAvailable
 FIBloodData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']]
 FIBloodData['FI_blood'] = FIBlood
 FIBloodData.loc[:,'FI_blood'] = FIBlood
+
+
+from pathlib import Path
+
+# Define the folder and file name
+output_file = Path(r"E:\CLSA\CLSA\results\FIBlood_BL.xlsx")
+
+# Create the folder automatically if it is missing
+output_file.parent.mkdir(parents=True, exist_ok=True)
+
+# Save the DataFrame
+FIBloodData.to_excel(output_file, index=False)
+
