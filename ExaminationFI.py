@@ -231,7 +231,7 @@ Osteoporosis =['dxa_wb_head_bmd_com'.upper(),'dxa_wb_larm_bmd_com'.upper(),
 Osteoporosis_T = (df[Osteoporosis] - df[Osteoporosis].mean()) / df[Osteoporosis].std()
 Osteoporosis_T_TF = Osteoporosis_T<=-2.5
 Osteoporosis_T_Count = Osteoporosis_T_TF.sum(axis=1)
-DF['DXA_Osteoporosis_BMD_T']='Nan'
+DF['DXA_Osteoporosis_BMD_T'] = np.nan
 DF['DXA_Osteoporosis_BMD_T'].loc[Osteoporosis_T_Count>=2]=1
 DF['DXA_Osteoporosis_BMD_T'].loc[Osteoporosis_T_Count==1]=0.5
 DF['DXA_Osteoporosis_BMD_T'].loc[Osteoporosis_T_Count==0]=0
