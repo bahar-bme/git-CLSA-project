@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 DF = pd.DataFrame()
-#file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_Baseline_CoPv7.csv'
+file_path_BL = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_Baseline_CoPv7.csv'
 file_path = r'E:\CLSA\CLSA\data\2310011_UCalgary_RRose_FUP1\2310011_UCalgary_RRose_FUP1\2310011_UCalgary_RRose_FUP1_CoPv5.csv'
 
 # Define specific dtypes for columns to optimize memory
@@ -10,8 +10,12 @@ file_path = r'E:\CLSA\CLSA\data\2310011_UCalgary_RRose_FUP1\2310011_UCalgary_RRo
 #     'MEDI_DOSE_FRQ_1_COF1': 'int8',
     
 # }
+
+required_columns_BL =['entity_id','SEX_ASK_COM']
+df_BL = pd.read_csv(file_path_BL, usecols=required_columns_BL)
+
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
-print(ColumnNames)
+#print(ColumnNames)
 #print(df['entity_id'])
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
 FISelfRedportCount = 51;DF = pd.DataFrame()
@@ -34,6 +38,7 @@ required_columns =['entity_id','AGE_NMBR_COF1',
                    'DEP_GTGO_COF1']
 
 df = pd.read_csv(file_path, usecols=required_columns)
+df = df.merge(df_BL[['entity_id', 'SEX_ASK_COM']], on='entity_id', how='left')
 """"
 IsEmpty = df.isna() | (df == "")
 DataNA = IsEmpty.sum(axis=1)
@@ -72,7 +77,6 @@ df['CCC_OAHAND_COF1']=2-df['CCC_OAHAND_COF1']
 df['CCC_OAHIP_COF1']=2-df['CCC_OAHIP_COF1']
 df['Osteoarthritis'] = df[['CCC_OAKNEE_COF1','CCC_OAHAND_COF1','CCC_OAHIP_COF1']].sum(axis=1 , min_count=1)
 DF['Osteoarthritis'] = df['Osteoarthritis'].gt(0).astype(int)
-
 #df["CCC_RA_COF1"] .loc[(df["CCC_RA_COF1"] ==8)|(df["CCC_RA_COF1"] ==9)] = np.nan
 df.loc[~df['CCC_RA_COF1'].isin([1,2]),'CCC_RA_COF1'] = np.nan
 DF['Arthritis']=2-df['CCC_RA_COF1']
@@ -95,7 +99,7 @@ df.loc[~df['CCC_HEART_COF1'].isin([1,2]),'CCC_HEART_COF1'] = np.nan
 DF['Chronic_heart_failure']=2-df['CCC_HEART_COF1']
 
 #df["CCC_ANGI_COF1"] .loc[(df["CCC_ANGI_COF1"] ==8)|(df["CCC_ANGI_COF1"] ==9)] = np.nan
-df.loc[df['CCC_ANGI_COF1'].isin([1,2]),'CCC_ANGI_COF1'] = np.nan
+df.loc[~df['CCC_ANGI_COF1'].isin([1,2]),'CCC_ANGI_COF1'] = np.nan
 DF['Angina']=2-df['CCC_ANGI_COF1']
 
 #df["CCC_AMI_COF1"] .loc[(df["CCC_AMI_COF1"] ==8)|(df["CCC_AMI_COF1"] ==9)] = np.nan
@@ -142,7 +146,7 @@ df.loc[~df['CCC_BOWINC_COF1'].isin([1,2]),'CCC_BOWINC_COF1'] = np.nan
 DF['Bowel_incontinence']=2-df['CCC_BOWINC_COF1']
 
 #df["ADL_INCNT_COF1"].loc[(df["ADL_INCNT_COF1"]==8)|(df["ADL_INCNT_COF1"]==9)] = np.nan
-df.loc[df['ADL_INCNT_COF1'].isin([8,9]),'ADL_INCNT_COF1'] = np.nan
+df.loc[~df['ADL_INCNT_COF1'].isin([1,2,3]),'ADL_INCNT_COF1'] = np.nan
 DF['Urinary_incontinence'] = (df['ADL_INCNT_COF1']-1)/2
 
 #vision
@@ -194,7 +198,7 @@ df.loc[~df['CCC_DRUTI_COF1'].isin([1,2]),'CCC_DRUTI_COF1'] = np.nan
 DF['Urinary_tract_infection']=2-df['CCC_DRUTI_COF1']
 
 #ADL
-df.loc[df["FAL_NMBR_NB_COF1"].isin([89, 99]), "FAL_NMBR_NB_COF1"] = np.nan
+df.loc[df["FAL_NMBR_NB_COF1"].isin([98, 99,-99999,-88888]), "FAL_NMBR_NB_COF1"] = np.nan
 #df["FAL_NMBR_NB_COF1"].loc[(df["FAL_NMBR_NB_COF1"]==98)|(df["FAL_NMBR_NB_COF1"]==99)] = np.nan
 MaxFall = df['FAL_NMBR_NB_COF1'].max()
 DF['Falls'] = (df['FAL_NMBR_NB_COF1'])/MaxFall
@@ -238,24 +242,26 @@ DF['Money'] = df['IAL_ABLMO_COF1']-1
 # Cognition
 
 #DF['Mental_alternation_test']
-
+df.loc[df['COG_AFT_SCORE_1_COF1'].isin([-88888,-99999]),'COG_AFT_SCORE_1_COF1'] = np.nan
+df.loc[df['COG_AFT_SCORE_2_COF1'].isin([-88888,-99999]),'COG_AFT_SCORE_2_COF1'] = np.nan
 DF['Animal_Recall'] = ((1-(df['COG_AFT_SCORE_1_COF1']/df['COG_AFT_SCORE_1_COF1'].max())) + 
                        (1-(df['COG_AFT_SCORE_2_COF1']/df['COG_AFT_SCORE_2_COF1'].max())))/2
 
-
+df.loc[df['COG_REYI_SCORE_COF1'].isin([-88888,-99999]),'COG_REYI_SCORE_COF1'] = np.nan
 DF['immediate_Recall'] = 1-(df['COG_REYI_SCORE_COF1']/df['COG_REYI_SCORE_COF1'].max())
 
+df.loc[df['COG_REYII_SCORE_COF1'].isin([-88888,-99999]),'COG_REYII_SCORE_COF1'] = np.nan
 DF['Delayed_Recall'] = 1-(df['COG_REYII_SCORE_COF1']/df['COG_REYII_SCORE_COF1'].max())
 
 # Mental Health
-df.loc[df['DEP_FFRT_COF1'].isin([-8,8,9]),'DEP_FFRT_COF1'] = np.nan
+df.loc[df['DEP_FFRT_COF1'].isin([8,9,-88888,-88880]),'DEP_FFRT_COF1'] = np.nan
 DF['Effort'] = (4-df['DEP_FFRT_COF1'])/3
 
-df.loc[df['DEP_LONLY_COF1'].isin([-8,8,9]),'DEP_LONLY_COF1'] = np.nan
+df.loc[df['DEP_LONLY_COF1'].isin([8,9,-88888,-88880]),'DEP_LONLY_COF1'] = np.nan
 DF['Felt_Lonely'] = (4-df['DEP_LONLY_COF1'])/3
 
 
-df.loc[df['DEP_GTGO_COF1'].isin([-8,8,9]),'DEP_GTGO_COF1'] = np.nan
+df.loc[df['DEP_GTGO_COF1'].isin([8,9,-88888,-88880]),'DEP_GTGO_COF1'] = np.nan
 DF['Get_Going'] = (4-df['DEP_GTGO_COF1'])/3
 
 print(DF)
@@ -275,7 +281,7 @@ print(DF.dtypes)
 
 DeficitsCount = DF.sum(axis=1)
 FISelfReport = DeficitsCount/DataAvailable
-FISelfReportData = df[['entity_id','AGE_NMBR_COF1']]
+FISelfReportData = df[['entity_id','AGE_NMBR_COF1','SEX_ASK_COM']]
 #FISelfReportData['FI_SelfReport'] = FISelfReport
 FISelfReportData.loc[:,'FI_SelfReport'] = FISelfReport
 

@@ -6,7 +6,7 @@ Created on Wed Oct 29 22:03:16 2025
 """
 
 import pandas as pd
-
+import numpy as np
 file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_Baseline_CoPv7.csv'
 # Define specific dtypes for columns to optimize memory
 # optimized_dtypes = {
@@ -14,7 +14,7 @@ file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_
     
 # }
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
-print(ColumnNames)
+#print(ColumnNames)
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
 FIBloodCount = 22;DF = pd.DataFrame()
 
@@ -52,16 +52,26 @@ DF["BLD_RBC_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_RBC_COM']<4.5)|(df['BLD_
 DF["BLD_WBC_COM"] = (df["BLD_WBC_COM"]<1.8) | (df["BLD_WBC_COM"]>7.8)
 DF["BLD_RDW_COM"] = df["BLD_RDW_COM"]>14.6
 DF["BLD_MPV_COM"] = (df["BLD_MPV_COM"]<7) | (df["BLD_MPV_COM"]>13)
+df.loc[df['BLD_HBA1c_COM'].isin([-2222,-8888]),'BLD_HBA1c_COM'] = np.nan
 DF["BLD_HBA1c_COM"] = (df["BLD_HBA1c_COM"]<3.8) | (df["BLD_HBA1c_COM"]>6.4)
+df.loc[df['BLD_VITD_COM'].isin([-1111,-2222,-8888]),'BLD_VITD_COM'] = np.nan
 DF["BLD_VITD_COM"] = (df["BLD_VITD_COM"]<24.9) | (df["BLD_VITD_COM"]>169.5)
+df.loc[df['BLD_HSCRP_COM'].isin([-2222,-8888]),'BLD_HSCRP_COM'] = np.nan
 DF["BLD_HSCRP_COM"] = df["BLD_HSCRP_COM"]<8
+df.loc[df['BLD_ALB_COM'].isin([-8888]),'BLD_ALB_COM'] = np.nan
 DF["BLD_ALB_COM"] = (df["BLD_ALB_COM"]<40) | (df["BLD_ALB_COM"]>60)
 #DF["BLD_EGFR_COM"] = df["BLD_EGFR_COM"]<60
+df.loc[df['BLD_TSH_COM'].isin([-2222,-8888]),'BLD_TSH_COM'] =np.nan
 DF["BLD_TSH_COM"] = (df["BLD_TSH_COM"]<0.5) | (df["BLD_TSH_COM"]>5)
+df.loc[df['BLD_CREAT_COM'].isin([-8888]),'BLD_CREAT_COM'] = np.nan
 DF["BLD_CREAT_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_CREAT_COM']<60)|(df['BLD_CREAT_COM']>110)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_CREAT_COM']<45)|(df['BLD_CREAT_COM']>90)))
+df.loc[df['BLD_FT4_COM'].isin([-1111,-2222,-8888]),'BLD_FT4_COM'] = np.nan
 DF["BLD_FT4_COM"] = df["BLD_FT4_COM"]>23.2
+df.loc[df['BLD_FERR_COM'].isin([-1111,-2222,-8888]),'BLD_FERR_COM'] = np.nan
 DF["BLD_FERR_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_FERR_COM']<20)|(df['BLD_FERR_COM']>250)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_FERR_COM']<10)|(df['BLD_FERR_COM']>120)))
+df.loc[df['BLD_CHOL_COM'].isin([-8888]),'BLD_CHOL_COM'] = np.nan
 DF["BLD_CHOL_COM"] = (df["BLD_CHOL_COM"]<3.9) | (df["BLD_CHOL_COM"]>6.5)
+df.loc[df['BLD_TRIG_COM'].isin([-8888]),'BLD_TRIG_COM'] = np.nan
 DF["BLD_TRIG_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_TRIG_COM']<0.45)|(df['BLD_TRIG_COM']>1.81)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_TRIG_COM']<0.36)|(df['BLD_TRIG_COM']>1.12)))
 
 RAWDF=DF
