@@ -28,6 +28,8 @@ required_columns =['entity_id','AGE_NMBR_COM',
                    'BLD_TRIG_COM']
 
 df = pd.read_csv(file_path, usecols=required_columns)
+
+""""
 IsEmpty = df.isna() | (df == "")
 DataNA = IsEmpty.sum(axis=1)
 RowsToDrop = DataNA.index[DataNA>FIBloodCount*0.2]
@@ -37,6 +39,7 @@ DataNA = IsEmpty.sum(axis=1)
 NotEmpty = ~IsEmpty
 DataAvailable = NotEmpty.sum(axis=1)-3
 print(DataAvailable)
+"""
 DF["BLD_GR_PER_COM"] = (df["BLD_GR_PER_COM"]<45) | (df["BLD_GR_PER_COM"]>75)    
 DF["BLD_Hct_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hct_COM']<0.41)|(df['BLD_Hct_COM']>0.53)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hct_COM']<0.36)|(df['BLD_Hct_COM']>0.46)))
 DF["BLD_LY_PER_COM"] = (df["BLD_LY_PER_COM"]<22) | (df["BLD_LY_PER_COM"]>44) 
