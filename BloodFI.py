@@ -28,6 +28,7 @@ required_columns =['entity_id','AGE_NMBR_COM',
                    'BLD_TRIG_COM']
 
 df = pd.read_csv(file_path, usecols=required_columns)
+df = df.replace([-1111,-2222,-8888],np.nan)
 
 """"
 IsEmpty = df.isna() | (df == "")

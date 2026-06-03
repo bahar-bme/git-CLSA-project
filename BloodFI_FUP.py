@@ -37,7 +37,7 @@ required_columns =['entity_id','AGE_NMBR_COF1',
 df = pd.read_csv(file_path, usecols=required_columns)
 
 df = df.merge(df_BL[['entity_id', 'SEX_ASK_COM']], on='entity_id', how='left')
-
+df = df.replace([-99999,-99991,-88880,-88888,-2222],np.nan)
 """"
 IsEmpty = df.isna() | (df == "")
 DataNA = IsEmpty.sum(axis=1)
@@ -49,15 +49,15 @@ NotEmpty = ~IsEmpty
 DataAvailable = NotEmpty.sum(axis=1)-3
 print(DataAvailable)
 """
-df.loc[df['BLD_GR_PER_COF1'].isin([-99999,-99991,-88880]),'BLD_GR_PER_COF1'] = np.nan
+#df.loc[df['BLD_GR_PER_COF1'].isin([-99999,-99991,-88880]),'BLD_GR_PER_COF1'] = np.nan
 DF["BLD_GR_PER_COF1"] = (df["BLD_GR_PER_COF1"]<45) | (df["BLD_GR_PER_COF1"]>75)    
-df.loc[df['BLD_Hct_COF1'].isin([-99999,-99991,-88880]),'BLD_Hct_COF1'] = np.nan
+#df.loc[df['BLD_Hct_COF1'].isin([-99999,-99991,-88880]),'BLD_Hct_COF1'] = np.nan
 DF["BLD_Hct_COF1"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hct_COF1']<0.41)|(df['BLD_Hct_COF1']>0.53)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hct_COF1']<0.36)|(df['BLD_Hct_COF1']>0.46)))
-df.loc[df['BLD_LY_PER_COF1'].isin([-99999,-99991,-88880]),'BLD_LY_PER_COF1'] = np.nan
+#df.loc[df['BLD_LY_PER_COF1'].isin([-99999,-99991,-88880]),'BLD_LY_PER_COF1'] = np.nan
 DF["BLD_LY_PER_COF1"] = (df["BLD_LY_PER_COF1"]<22) | (df["BLD_LY_PER_COF1"]>44) 
-df.loc[df['BLD_MCH_COF1'].isin([-99999,-99991,-88880]),'BLD_MCH_COF1'] = np.nan
+#df.loc[df['BLD_MCH_COF1'].isin([-99999,-99991,-88880]),'BLD_MCH_COF1'] = np.nan
 DF["BLD_MCH_COF1"] = (df["BLD_MCH_COF1"]<26) | (df["BLD_MCH_COF1"]>34)
-df.loc[df['BLD_Hgb_COF1'].isin([-99999,-99991,-88880]),'BLD_Hgb_COF1'] = np.nan
+#df.loc[df['BLD_Hgb_COF1'].isin([-99999,-99991,-88880]),'BLD_Hgb_COF1'] = np.nan
 DF["BLD_Hgb_COF1"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hgb_COF1']<13.5)|(df['BLD_Hgb_COF1']>18)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hgb_COF1']<12)|(df['BLD_Hgb_COF1']>16)))
 DF["BLD_MO_PER_COF1"] = (df["BLD_MO_PER_COF1"]>8)
 DF["BLD_Plt_COF1"] = (df["BLD_Plt_COF1"]<150) | (df["BLD_Plt_COF1"]>450)
@@ -79,7 +79,6 @@ DF["BLD_CHOL_COF1"] = (df["BLD_CHOL_COF1"]<3.9) | (df["BLD_CHOL_COF1"]>6.5)
 DF["BLD_TRIG_COF1"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_TRIG_COF1']<0.45)|(df['BLD_TRIG_COF1']>1.81)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_TRIG_COF1']<0.36)|(df['BLD_TRIG_COF1']>1.12)))
 
 RAWDF=DF
-
 IsEmpty = DF.isna() | (DF == "")
 DataNA = IsEmpty.sum(axis=1)
 RowsToDrop = DataNA.index[DataNA>FIBloodCount*0.2]
@@ -87,7 +86,7 @@ DF.drop(RowsToDrop, inplace=True)
 IsEmpty = DF.isna() | (DF == "")
 NotEmpty = ~IsEmpty
 DataAvailable = NotEmpty.sum(axis=1)
-print(DataAvailable)
+#print(DataAvailable)
 
 DeficitsCount = DF.sum(axis=1)
 FIBlood = DeficitsCount/DataAvailable
