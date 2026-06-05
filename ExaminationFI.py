@@ -135,12 +135,15 @@ DataAvailable = NotEmpty.sum(axis=1)-3
 """
 
 # Domain 1: Physical Performance
+df.loc[df['wlk_time_com'.upper()].isin([-88]),'wlk_time_com'.upper()] = np.nan
 DF['wlk_time_com'.upper()] = stratified_scaling(df, 'wlk_time_com'.upper() , inverse=False)
 DF['cr_avg_time_com'.upper()] = stratified_scaling(df, 'cr_avg_time_com'.upper(), inverse=False)
+df.loc[df['TUG_TIME_COM'].isin([-88]),'TUG_TIME_COM'] = np.nan
 DF['tug_time_com'.upper()] = stratified_scaling(df, 'tug_time_com'.upper(), inverse=False)
 DF['gs_exam_max_com'.upper()] = stratified_scaling(df, 'gs_exam_max_com'.upper(), inverse=True)
 DF['bal_best_com'.upper()] = stratified_scaling(df, 'bal_best_com'.upper(), inverse=True)
 # Domain 2: Cognition
+df.loc[df['ED_HIGH_COM'].isin([97,98,99]),'ED_HIGH_COM'] = np.nan
 strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','COG_REYI_STARTLANG_COM','COG_REYI_LANG_COM']
 DF['cog_reyi_score_com'.upper()] = stratified_scaling(df, target_col='cog_reyi_score_com'.upper(),
                                                        group_col=strat_list, inverse=True)
@@ -186,7 +189,8 @@ strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','CRT_LANG_COM']
 DF['crt_mrtwout_corrans_com'.upper()] = stratified_scaling(df, target_col='crt_mrtwout_corrans_com'.upper(),
                                                        group_col=strat_list, inverse=True)                                                       
 
-
+df.loc[df['stp_dottime_ss_com'.upper()].isin([-888]),'stp_dottime_ss_com'.upper()] = np.nan
+df.loc[df['stp_coltime_ss_com'.upper()].isin([-888]),'stp_coltime_ss_com'.upper()] = np.nan
 df['Stroop_Test_Interference_Time'] = df['stp_dottime_ss_com'.upper()]-df['stp_coltime_ss_com'.upper()]
 strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','STP_STARTLANG_COM']
 DF['Stroop_Test_Interference_Time'] = stratified_scaling(df, target_col='Stroop_Test_Interference_Time',
@@ -212,16 +216,21 @@ DF['ecg_r_axis_com'.upper()] = (df['ecg_r_axis_com'.upper()]<-30) | (df['ecg_r_a
 DF['ecg_t_axis_com'.upper()] = (df['ecg_t_axis_com'.upper()]<0) | (df['ecg_t_axis_com'.upper()]>90)
 DF['ecg_p_duration_com'.upper()] = df['ecg_p_duration_com'.upper()]>120
 # Domain 4: Anthropometric measures
+df.loc[df['hwt_dbmi_com'.upper()].isin([999.96, 999.99]),'hwt_dbmi_com.upper()'] = np.nan
 DF['hwt_dbmi_com'.upper()] = np.nan
 DF['hwt_dbmi_com'.upper()].loc[(df['hwt_dbmi_com'.upper()]<=18.5)|(df['hwt_dbmi_com'.upper()]>=30)] = 1
 DF['hwt_dbmi_com'.upper()].loc[(df['hwt_dbmi_com'.upper()]>=25)&(df['hwt_dbmi_com'.upper()]<=29.9)] = 0.5 
 DF['hwt_dbmi_com'.upper()].loc[(df['hwt_dbmi_com'.upper()]>=18.5)&(df['hwt_dbmi_com'.upper()]<=24.9)] = 0
+
 DF['whc_ratio_com'.upper()] = ((df['SEX_ASK_COM']=='M')&(df['whc_ratio_com'.upper()]>0.9)) | ((df['SEX_ASK_COM']=='F')&(df['whc_ratio_com'.upper()]>0.85))
 DXA_WB_WBTOT_BMD_T_COM = (df['DXA_WB_WBTOT_BMD_COM']-df['DXA_WB_WBTOT_BMD_COM'].mean()) /df['DXA_WB_WBTOT_BMD_COM'].std()
 DF['DXA_WB_WBTOT_T_COM'.upper()] = np.nan
 DF['DXA_WB_WBTOT_T_COM'.upper()].loc[DXA_WB_WBTOT_BMD_T_COM<=-2.5]=1
 DF['DXA_WB_WBTOT_T_COM'.upper()].loc[(DXA_WB_WBTOT_BMD_T_COM>=-2.5)&(DXA_WB_WBTOT_BMD_T_COM<1)]=0.5
 DF['DXA_WB_WBTOT_T_COM'.upper()].loc[DXA_WB_WBTOT_BMD_T_COM<=-1]=0
+
+
+################################
 Osteoporosis =['dxa_wb_head_bmd_com'.upper(),'dxa_wb_larm_bmd_com'.upper(),
                'dxa_wb_rarm_bmd_com'.upper(),'dxa_wb_lrib_bmd_com'.upper(),
                'dxa_wb_rrib_bmd_com'.upper(),'dxa_wb_t_s_bmd_com'.upper(),
