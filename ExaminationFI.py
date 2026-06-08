@@ -204,10 +204,11 @@ DF['bp_pulse_avg_com'.upper()]     = (df['bp_pulse_avg_com'.upper()]<=60) | (df[
 #DF['imt_r_avg_com'.upper()]        = (df['imt_r_avg_com'.upper()]<0.5) | (df['imt_r_avg_com'.upper()]>0.8)
 #DF['imt_l_avg_com'.upper()]         = (df['imt_l_avg_com'.upper()]<0.5) | (df['imt_l_avg_com'.upper()]>0.8)
 DF['ecg_result_com'.upper()] = np.nan
-DF['ecg_result_com'.upper()].loc[(df['ecg_result_com'.upper()] == 4) | (df['ecg_result_com'.upper()] == 5)]= 1
-DF['ecg_result_com'.upper()].loc[df['ecg_result_com'.upper()] == 3] = 0.66
-DF['ecg_result_com'.upper()].loc[df['ecg_result_com'.upper()] == 2] = 0.33
-DF['ecg_result_com'.upper()].loc[df['ecg_result_com'.upper()] == 1] = 0
+DF.loc[((df['ecg_result_com'.upper()] == 4) | (df['ecg_result_com'.upper()] == 5)),'ecg_result_com'.upper()]= 1
+DF.loc[(df['ecg_result_com'.upper()] == 3),'ecg_result_com'.upper()] = 0.66
+DF.loc[(df['ecg_result_com'.upper()] == 2),'ecg_result_com'.upper()] = 0.33
+DF.loc[(df['ecg_result_com'.upper()] == 1),'ecg_result_com'.upper()] = 0
+
 DF['ecg_pq_interval_com'.upper()] = (df['ecg_pq_interval_com'.upper()]<=12) | (df['ecg_pq_interval_com'.upper()]>200)
 DF['ecg_qrs_duration_com'.upper()] = df['ecg_qrs_duration_com'.upper()] >= 100
 DF['ecg_qtc_interval_com'.upper()] = ((df["SEX_ASK_COM"]=="M") & (df['ecg_qtc_interval_com'.upper()]>430))|((df["SEX_ASK_COM"]=="F") & (df['ecg_qtc_interval_com'.upper()]>450))
@@ -218,19 +219,17 @@ DF['ecg_p_duration_com'.upper()] = df['ecg_p_duration_com'.upper()]>120
 # Domain 4: Anthropometric measures
 df.loc[df['hwt_dbmi_com'.upper()].isin([999.96, 999.99]),'hwt_dbmi_com.upper()'] = np.nan
 DF['hwt_dbmi_com'.upper()] = np.nan
-DF['hwt_dbmi_com'.upper()].loc[(df['hwt_dbmi_com'.upper()]<=18.5)|(df['hwt_dbmi_com'.upper()]>=30)] = 1
-DF['hwt_dbmi_com'.upper()].loc[(df['hwt_dbmi_com'.upper()]>=25)&(df['hwt_dbmi_com'.upper()]<=29.9)] = 0.5 
-DF['hwt_dbmi_com'.upper()].loc[(df['hwt_dbmi_com'.upper()]>=18.5)&(df['hwt_dbmi_com'.upper()]<=24.9)] = 0
+DF.loc[((df['hwt_dbmi_com'.upper()]<=18.5)|(df['hwt_dbmi_com'.upper()]>=30))  ,'hwt_dbmi_com'.upper()] = 1
+DF.loc[((df['hwt_dbmi_com'.upper()]>=25)&(df['hwt_dbmi_com'.upper()]<=29.9))  ,'hwt_dbmi_com'.upper()] = 0.5 
+DF.loc[((df['hwt_dbmi_com'.upper()]>=18.5)&(df['hwt_dbmi_com'.upper()]<=24.9)),'hwt_dbmi_com'.upper()] = 0
 
 DF['whc_ratio_com'.upper()] = ((df['SEX_ASK_COM']=='M')&(df['whc_ratio_com'.upper()]>0.9)) | ((df['SEX_ASK_COM']=='F')&(df['whc_ratio_com'.upper()]>0.85))
 DXA_WB_WBTOT_BMD_T_COM = (df['DXA_WB_WBTOT_BMD_COM']-df['DXA_WB_WBTOT_BMD_COM'].mean()) /df['DXA_WB_WBTOT_BMD_COM'].std()
-DF['DXA_WB_WBTOT_T_COM'.upper()] = np.nan
-DF['DXA_WB_WBTOT_T_COM'.upper()].loc[DXA_WB_WBTOT_BMD_T_COM<=-2.5]=1
-DF['DXA_WB_WBTOT_T_COM'.upper()].loc[(DXA_WB_WBTOT_BMD_T_COM>=-2.5)&(DXA_WB_WBTOT_BMD_T_COM<1)]=0.5
-DF['DXA_WB_WBTOT_T_COM'.upper()].loc[DXA_WB_WBTOT_BMD_T_COM<=-1]=0
+DF['DXA_WB_WBTOT_T_COM'] = np.nan
+DF.loc[(DXA_WB_WBTOT_BMD_T_COM<=-2.5),'DXA_WB_WBTOT_T_COM'] = 1
+DF.loc[((DXA_WB_WBTOT_BMD_T_COM>=-2.5)&(DXA_WB_WBTOT_BMD_T_COM<1)),'DXA_WB_WBTOT_T_COM'] = 0.5
+DF.loc[(DXA_WB_WBTOT_BMD_T_COM<=-1),'DXA_WB_WBTOT_T_COM'] = 0
 
-
-################################
 Osteoporosis =['dxa_wb_head_bmd_com'.upper(),'dxa_wb_larm_bmd_com'.upper(),
                'dxa_wb_rarm_bmd_com'.upper(),'dxa_wb_lrib_bmd_com'.upper(),
                'dxa_wb_rrib_bmd_com'.upper(),'dxa_wb_t_s_bmd_com'.upper(),
@@ -241,9 +240,9 @@ Osteoporosis_T = (df[Osteoporosis] - df[Osteoporosis].mean()) / df[Osteoporosis]
 Osteoporosis_T_TF = Osteoporosis_T<=-2.5
 Osteoporosis_T_Count = Osteoporosis_T_TF.sum(axis=1)
 DF['DXA_Osteoporosis_BMD_T'] = np.nan
-DF['DXA_Osteoporosis_BMD_T'].loc[Osteoporosis_T_Count>=2]=1
-DF['DXA_Osteoporosis_BMD_T'].loc[Osteoporosis_T_Count==1]=0.5
-DF['DXA_Osteoporosis_BMD_T'].loc[Osteoporosis_T_Count==0]=0
+DF.loc[(Osteoporosis_T_Count>=2),'DXA_Osteoporosis_BMD_T']=1
+DF.loc[(Osteoporosis_T_Count==1),'DXA_Osteoporosis_BMD_T']=0.5
+DF.loc[(Osteoporosis_T_Count==0),'DXA_Osteoporosis_BMD_T']=0
 DF['DXA_OI_APDG_LEAN_MASS_H2_COM'] = stratified_scaling(df, 'DXA_OI_APDG_LEAN_MASS_H2_COM', inverse=True)
 DF['DXA_OI_TOTAL_PERCENT_FAT_COM'] = stratified_scaling(df, 'DXA_OI_TOTAL_PERCENT_FAT_COM', inverse=False)
 BodyFatAreas =['DXA_WBC_LARM_PFAT_COM','DXA_WBC_RARM_PFAT_COM','DXA_WBC_L_LEG_PFAT_COM',
@@ -253,12 +252,12 @@ BodyFatAreas_P95 = BodyFatAreas_Individual.quantile(0.95)
 ExcessBodyFatArea=BodyFatAreas_Individual>=BodyFatAreas_P95
 ExcessBodyFatArea_Count=ExcessBodyFatArea.sum(axis=1)
 DF['AGGREGATE_BODY_FAT'] = np.nan
-DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==0]=0
-DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==1]=0.2
-DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==2]=0.4
-DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==3]=0.5
-DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count==4]=0.8
-DF['AGGREGATE_BODY_FAT'].loc[ExcessBodyFatArea_Count>=5]=1
+DF.loc[(ExcessBodyFatArea_Count==0),'AGGREGATE_BODY_FAT']=0
+DF.loc[(ExcessBodyFatArea_Count==1),'AGGREGATE_BODY_FAT']=0.2
+DF.loc[(ExcessBodyFatArea_Count==2),'AGGREGATE_BODY_FAT']=0.4
+DF.loc[(ExcessBodyFatArea_Count==3),'AGGREGATE_BODY_FAT']=0.5
+DF.loc[(ExcessBodyFatArea_Count==4),'AGGREGATE_BODY_FAT']=0.8
+DF.loc[(ExcessBodyFatArea_Count>=5),'AGGREGATE_BODY_FAT']=1
 
 # Domain 5: Spirometry measures
 FVC = ['spr_fvc_t1_com'.upper(),'spr_fvc_t2_com'.upper(),'spr_fvc_t3_com'.upper(),
@@ -267,6 +266,16 @@ FVC = ['spr_fvc_t1_com'.upper(),'spr_fvc_t2_com'.upper(),'spr_fvc_t3_com'.upper(
 FVCDF = df[FVC]
 df['FVC_Max'.upper()] = FVCDF.max(axis=1, skipna=True)
 DF['FVC_Max'.upper()] = stratified_scaling(df, 'FVC_Max'.upper() , inverse=True)
+
+df.loc[df['SPR_FEV1_FVC_T1_COM'].isin([777]),'SPR_FEV1_FVC_T1_COM'] = np.nan
+df.loc[df['SPR_FEV1_FVC_T2_COM'].isin([777]),'SPR_FEV1_FVC_T2_COM'] = np.nan
+df.loc[df['SPR_FEV1_FVC_T3_COM'].isin([777]),'SPR_FEV1_FVC_T3_COM'] = np.nan
+df.loc[df['SPR_FEV1_FVC_T4_COM'].isin([777]),'SPR_FEV1_FVC_T4_COM'] = np.nan
+df.loc[df['SPR_FEV1_FVC_T5_COM'].isin([777]),'SPR_FEV1_FVC_T5_COM'] = np.nan
+df.loc[df['SPR_FEV1_FVC_T6_COM'].isin([777]),'SPR_FEV1_FVC_T6_COM'] = np.nan
+df.loc[df['SPR_FEV1_FVC_T7_COM'].isin([777]),'SPR_FEV1_FVC_T7_COM'] = np.nan
+df.loc[df['SPR_FEV1_FVC_T8_COM'].isin([777]),'SPR_FEV1_FVC_T8_COM'] = np.nan
+
 FEV1 = ['SPR_FEV1_FVC_T1_COM','SPR_FEV1_FVC_T2_COM','SPR_FEV1_FVC_T3_COM',
         'SPR_FEV1_FVC_T4_COM','SPR_FEV1_FVC_T5_COM','SPR_FEV1_FVC_T6_COM',
         'SPR_FEV1_FVC_T7_COM','SPR_FEV1_FVC_T8_COM']
@@ -275,7 +284,9 @@ df['FEV1_MAX'] = FEV1DF.max(axis=1, skipna=True)
 DF['FEV1_MAX'] = stratified_scaling(df, 'FEV1_MAX' , inverse=True)
 
 # Domain 6: Hearing and vision
+df.loc[df['va_etdrs_l_rslt_com'.upper()].isin([-88.8]),'va_etdrs_l_rslt_com'.upper()] = np.nan
 DF['va_etdrs_l_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_l_rslt_com'.upper() , inverse=True)
+df.loc[df['va_etdrs_r_rslt_com'.upper()].isin([-88.8]),'va_etdrs_r_rslt_com'.upper()] = np.nan
 DF['va_etdrs_r_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_r_rslt_com'.upper() , inverse=True)
 DF['ton_iopcc_r_com'.upper()] = (df['ton_iopcc_r_com'.upper()]<11) | (df['ton_iopcc_r_com'.upper()]>21)
 DF['ton_iopcc_l_com'.upper()] = (df['ton_iopcc_l_com'.upper()]<11) | (df['ton_iopcc_l_com'.upper()]>21)
@@ -287,6 +298,9 @@ Mean_Intraocular_Pressure = (df['ton_iopg_r_com'.upper()] + df['ton_iopg_l_com'.
 Ocular_Perfusion_Pressure = ((2/3)*Mean_Arterial_Pressure) - Mean_Intraocular_Pressure
 DF['Mean_Ocular_Perfusion_Pressure'.upper()] = Ocular_Perfusion_Pressure >= 42
 
+df.loc[df['hrg_right_1k_com'.upper()].isin([-8]),'hrg_right_1k_com'.upper()] = np.nan
+df.loc[df['hrg_right_2k_com'.upper()].isin([-8]),'hrg_right_2k_com'.upper()] = np.nan
+
 columns_to_average = ['hrg_right_500_com'.upper(),'hrg_right_1k_com'.upper(),
                       'hrg_right_2k_com'.upper(),'hrg_right_4k_com'.upper()]
 
@@ -294,6 +308,7 @@ columns_to_average = ['hrg_right_500_com'.upper(),'hrg_right_1k_com'.upper(),
 df['Pure_Tone_R'.upper()] = df[columns_to_average].mean(axis=1)
 DF['Pure_Tone_R'.upper()] = stratified_scaling(df, 'Pure_Tone_R'.upper() , inverse=True)
 
+df.loc[df['hrg_left_1k_com'.upper()].isin([-8]),'hrg_left_1k_com'.upper()] = np.nan
 columns_to_average = ['hrg_left_500_com'.upper(),'hrg_left_1k_com'.upper(),
                       'hrg_left_2k_com'.upper(),'hrg_left_4k_com'.upper()]
 
@@ -301,10 +316,6 @@ columns_to_average = ['hrg_left_500_com'.upper(),'hrg_left_1k_com'.upper(),
 df['Pure_Tone_L'.upper()] = df[columns_to_average].mean(axis=1)
 DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=True)
 
-print(list(DF.columns))
-print(df.shape)
-print(DF.shape)
-print(DF)
 
 RAWDF=DF
 IsEmpty = DF.isna() | (DF == "")
@@ -315,14 +326,11 @@ IsEmpty = DF.isna() | (DF == "")
 NotEmpty = ~IsEmpty
 DataAvailable = NotEmpty.sum(axis=1)
 
-print(DataAvailable)
-print(DF.dtypes)
-print(DF['ECG_RESULT_COM'])
 DeficitsCount = DF.sum(axis=1)
 FIExamination = DeficitsCount/DataAvailable
-FIExaminationData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']]
-FIExaminationData['FI_Examination'] = FIExamination
-#FIExaminationData.loc[:,'FI_Examination'] = FIExamination
+FIExaminationData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']].copy()
+FIExaminationData['FI_Examination'] = np.nan
+FIExaminationData.loc[:,'FI_Examination'] = FIExamination
 
 from pathlib import Path
 
