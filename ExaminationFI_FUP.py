@@ -18,7 +18,7 @@ file_path = r'E:\CLSA\CLSA\data\2310011_UCalgary_RRose_FUP1\2310011_UCalgary_RRo
     
 # }
 
-required_columns_BL =['entity_id','SEX_ASK_COM']
+required_columns_BL =['entity_id','SEX_ASK_COM','ED_HIGH_COM']
 df_BL = pd.read_csv(file_path_BL, usecols=required_columns_BL)
 
 """
@@ -84,7 +84,7 @@ ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
 FIExaminationCount = 47;DF = pd.DataFrame()
 
-required_columns =['AGE_NMBR_COF1','ED_HIGH_COF1', 
+required_columns =['AGE_NMBR_COF1',
                    'wlk_time_cof1','cr_avg_time_cof1',
                    'tug_time_cof1','gs_exam_max_cof1','bal_best_cof1',
                    'cog_reyi_score_cof1','COG_REYI_STARTLANG_COF1','COG_REYI_LANG_COF1',
@@ -95,8 +95,8 @@ required_columns =['AGE_NMBR_COF1','ED_HIGH_COF1',
                    'FAS_F_LANG_COF1','FAS_A_LANG_COF1','FAS_S_LANG_COF1',
                    'tmt_itpexact_cof1','tmt_acc_cof1','tmt_rmd_cof1','TMT_LANG_COF1',
                    'pmt_itp_cof1','pmt_rem_cof1','pmt_acr_cof1','PMT_LANG_COF1',
-                   'crt_mrtwout_corrans_cof1','CRT_LANG_COF1',
-                   'stp_dottime_ss_cof1','stp_coltime_ss_cof1','STP_STARTLANG_COF1',
+                   'crt_mrtwout_corrans_cof1',
+                   'stp_dottime_ss_cof1','stp_coltime_ss_cof1',
                    'bp_systolic_avg_cof1','bp_diastolic_avg_cof1','bp_pulse_avg_cof1',
                    'bp_pulse_avg_cof1','ecg_result_cof1','ecg_pq_interval_cof1','ecg_qrs_duration_cof1',
                    'ecg_qtc_interval_cof1','ecg_p_axis_cof1','ecg_r_axis_cof1','ecg_t_axis_cof1',
@@ -108,17 +108,15 @@ required_columns =['AGE_NMBR_COF1','ED_HIGH_COF1',
                    'DXA_OI_TOTAL_PERCENT_FAT_COF1',
                    'DXA_WBC_LARM_PFAT_COF1','DXA_WBC_RARM_PFAT_COF1','DXA_WBC_L_LEG_PFAT_COF1',
                    'DXA_WBC_R_LEG_PFAT_COF1','DXA_WBC_TRUNK_PFAT_COF1','DXA_WBC_HEAD_PFAT_COF1',
-                   'spr_fvc_t1_cof1','spr_fvc_t2_cof1','spr_fvc_t3_cof1','spr_fvc_t4_cof1',
-                   'spr_fvc_t5_cof1','spr_fvc_t6_cof1','spr_fvc_t7_cof1','spr_fvc_t8_cof1',
-                   'SPR_FEV1_FVC_T1_COF1','SPR_FEV1_FVC_T2_COF1','SPR_FEV1_FVC_T3_COF1',
-                   'SPR_FEV1_FVC_T4_COF1','SPR_FEV1_FVC_T5_COF1','SPR_FEV1_FVC_T6_COF1',
-                   'SPR_FEV1_FVC_T7_COF1','SPR_FEV1_FVC_T8_COF1',
                    'va_etdrs_l_rslt_cof1','va_etdrs_r_rslt_cof1','ton_iopcc_r_cof1','ton_iopcc_l_cof1',
                    'ton_ch_l_cof1','ton_ch_r_cof1','ton_iopg_r_cof1','ton_iopg_l_cof1',
                    'bp_systolic_avg_cof1','bp_diastolic_avg_cof1',
                    'hrg_right_500_cof1','hrg_right_1k_cof1','hrg_right_2k_cof1','hrg_right_4k_cof1',
                    'hrg_left_500_cof1','hrg_left_1k_cof1','hrg_left_2k_cof1','hrg_left_4k_cof1']
 
+# 'spr_fvc_t2_cof1','SPR_FEV1_FVC_T2_COF1','SPR_FEV1_FVC_T3_COF1','SPR_FEV1_FVC_T8_COF1','SPR_FEV1_FVC_T6_COF1','SPR_FEV1_FVC_T1_COF1',
+#'STP_STARTLANG_COF1','spr_fvc_t4_cof1','spr_fvc_t5_cof1','spr_fvc_t7_cof1','SPR_FEV1_FVC_T7_COF1','spr_fvc_t8_cof1','SPR_FEV1_FVC_T5_COF1',
+# 'spr_fvc_t6_cof1','spr_fvc_t3_cof1','spr_fvc_t1_cof1','SPR_FEV1_FVC_T4_COF1','CRT_LANG_COF1',
 
 #'imt_r_avg_cof1','imt_l_avg_cof1'
 #'dxa_wb_wbtot_t_cof1'
@@ -127,7 +125,7 @@ required_columns.insert(0,'entity_id')
 
 
 df = pd.read_csv(file_path, usecols=required_columns)
-df = df.merge(df_BL[['entity_id', 'SEX_ASK_COM']], on='entity_id', how='left')
+df = df.merge(df_BL[['entity_id', 'SEX_ASK_COM','ED_HIGH_COM']], on='entity_id', how='left')
 
 """"
 IsEmpty = df.isna() | (df == "")
@@ -159,46 +157,46 @@ DF['bal_best_cof1'.upper()] = stratified_scaling(df, 'bal_best_cof1'.upper(), in
 df.loc[df['COG_REYI_STARTLANG_COF1'].isin([-88888,-99999]),'COG_REYI_STARTLANG_COF1'] = np.nan
 df.loc[df['COG_REYI_LANG_COF1'].isin([-88888,-99999]),'COG_REYI_LANG_COF1'] = np.nan
 df.loc[df['cog_reyi_score_cof1'.upper()].isin([-88888,-99999]),'cog_reyi_score_cof1'.upper()] = np.nan
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','COG_REYI_STARTLANG_COF1','COG_REYI_LANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','COG_REYI_STARTLANG_COF1','COG_REYI_LANG_COF1']
 DF['cog_reyi_score_cof1'.upper()] = stratified_scaling(df, target_col='cog_reyi_score_cof1'.upper(),
                                                        group_col=strat_list, inverse=True)
 
 df.loc[df['COG_REYII_STARTLANG_COF1'].isin([-88888,-99999]),'COG_REYII_STARTLANG_COF1'] = np.nan
 df.loc[df['COG_REYII_LANG_COF1'].isin([-88888,-99999]),'COG_REYII_LANG_COF1'] = np.nan
 df.loc[df['cog_reyii_score_cof1'.upper()].isin([-88888,-99999]),'cog_reyii_score_cof1'.upper()] = np.nan
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','COG_REYII_STARTLANG_COF1','COG_REYII_LANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','COG_REYII_STARTLANG_COF1','COG_REYII_LANG_COF1']
 DF['cog_reyii_score_cof1'.upper()] = stratified_scaling(df, target_col='cog_reyii_score_cof1'.upper(),
                                                        group_col=strat_list, inverse=True)
 
 df.loc[df['COG_MAT_STARTLANG_COF1'].isin([-88888,-99999]),'COG_MAT_STARTLANG_COF1'] = np.nan
 df.loc[df['COG_MAT_LANG_COF1'].isin([-88888,-99999]),'COG_MAT_LANG_COF1'] = np.nan
 df.loc[df['cog_mat_score_cof1'.upper()].isin([-88888,-99999]),'cog_mat_score_cof1'.upper()] = np.nan
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','COG_MAT_STARTLANG_COF1','COG_MAT_LANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','COG_MAT_STARTLANG_COF1','COG_MAT_LANG_COF1']
 DF['cog_mat_score_cof1'.upper()] = stratified_scaling(df, target_col='cog_mat_score_cof1'.upper(),
                                                        group_col=strat_list, inverse=True)
 
 df.loc[df['COG_AFT_STARTLANG_COF1'].isin([-88888,-99999]),'COG_AFT_STARTLANG_COF1'] = np.nan
 df.loc[df['COG_AFT_LANG_COF1'].isin([-88888,-99999]),'COG_AFT_LANG_COF1'] = np.nan
 df.loc[df['cog_aft_score_2_cof1'.upper()].isin([-88888,-99999]),'cog_aft_score_2_cof1'.upper()] = np.nan
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','COG_AFT_STARTLANG_COF1','COG_AFT_LANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','COG_AFT_STARTLANG_COF1','COG_AFT_LANG_COF1']
 DF['cog_aft_score_2_cof1'.upper()] = stratified_scaling(df, target_col='cog_aft_score_2_cof1'.upper(),
                                                        group_col=strat_list, inverse=True)
 
 df.loc[df['FAS_F_LANG_COF1'].isin([-88888,-99991,-88880,-99999]),'FAS_F_LANG_COF1'] = np.nan
 df.loc[df['fas_f_score_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'fas_f_score_cof1'.upper()] = np.nan
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','FAS_F_LANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','FAS_F_LANG_COF1']
 FAS_F_SCORE = stratified_scaling(df, target_col='fas_f_score_cof1'.upper(),
                                                        group_col=strat_list, inverse=True)
 
 df.loc[df['FAS_A_LANG_COF1'].isin([-88888,-99991,-88880,-99999]),'FAS_A_LANG_COF1'] = np.nan
 df.loc[df['fas_a_score_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'fas_a_score_cof1'.upper()] = np.nan
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','FAS_A_LANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','FAS_A_LANG_COF1']
 FAS_A_SCORE = stratified_scaling(df, target_col='fas_a_score_cof1'.upper(),
                                                        group_col=strat_list, inverse=True)
 
 df.loc[df['FAS_S_LANG_COF1'].isin([-88888,-99991,-88880,-99999]),'FAS_S_LANG_COF1'] = np.nan
 df.loc[df['fas_s_score_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'fas_s_score_cof1'.upper()] = np.nan
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','FAS_S_LANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','FAS_S_LANG_COF1']
 FAS_S_SCORE = stratified_scaling(df, target_col='fas_s_score_cof1'.upper(),
                                                        group_col=strat_list, inverse=True)                                                       
 
@@ -209,7 +207,7 @@ df.loc[df['tmt_acc_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'tmt_acc_c
 df.loc[df['tmt_itpexact_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'tmt_itpexact_cof1'] = np.nan
 
 df['Time_Based_Memory'] = df['tmt_rmd_cof1'.upper()].add(df['tmt_acc_cof1'.upper()], fill_value=0).add(df['tmt_itpexact_cof1'.upper()], fill_value=0)
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','TMT_LANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','TMT_LANG_COF1']
 DF['Time_Based_Memory'] = stratified_scaling(df, target_col='Time_Based_Memory',
                                                        group_col=strat_list, inverse=True)                                                       
 
@@ -219,19 +217,19 @@ df.loc[df['pmt_acr_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'pmt_acr_c
 df['Event_Based_Memory'] = df['pmt_itp_cof1'.upper()].add(df['pmt_rem_cof1'.upper()],fill_value=0).add(df['pmt_acr_cof1'.upper()],fill_value=0)
 
 df.loc[df['PMT_LANG_COF1'].isin([-88888,-99991,-88880,-99999]),'PMT_LANG_COF1'] = np.nan
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','PMT_LANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','PMT_LANG_COF1']
 DF['Event_Based_Memory'] = stratified_scaling(df, target_col='Event_Based_Memory',
                                                        group_col=strat_list, inverse=True)                                                       
 
-df.loc[df['crt_mrtwout_corrans_cof1'].isin([-88888,-99991,-88880,-99999]),'crt_mrtwout_corrans_cof1'] = np.nan
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','CRT_LANG_COF1']
+df.loc[df['crt_mrtwout_corrans_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'crt_mrtwout_corrans_cof1'.upper()] = np.nan
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM'] #,'CRT_LANG_COF1'
 DF['crt_mrtwout_corrans_cof1'.upper()] = stratified_scaling(df, target_col='crt_mrtwout_corrans_cof1'.upper(),
                                                        group_col=strat_list, inverse=True)                                                       
 
 df.loc[df['stp_dottime_ss_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'stp_dottime_ss_cof1'.upper()] = np.nan
 df.loc[df['stp_coltime_ss_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'stp_coltime_ss_cof1'.upper()] = np.nan
 df['Stroop_Test_Interference_Time'] = df['stp_dottime_ss_cof1'.upper()]-df['stp_coltime_ss_cof1'.upper()]
-strat_list = ['SEX_ASK_COM', 'ED_HIGH_COF1','STP_STARTLANG_COF1']
+strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM'] #,'STP_STARTLANG_COF1'
 DF['Stroop_Test_Interference_Time'] = stratified_scaling(df, target_col='Stroop_Test_Interference_Time',
                                                        group_col=strat_list, inverse=True)                                                       
 # Domain 3: Cardiac
@@ -316,9 +314,16 @@ DF['DXA_OI_APDG_LEAN_MASS_H2_COF1'] = stratified_scaling(df, 'DXA_OI_APDG_LEAN_M
 DF['DXA_OI_TOTAL_PERCENT_FAT_COF1'] = stratified_scaling(df, 'DXA_OI_TOTAL_PERCENT_FAT_COF1', inverse=False)
 
 ########
+df.loc[df['DXA_WBC_LARM_PFAT_COF1'].isin([-88888,-99991,-88880,-99999]),'DXA_WBC_LARM_PFAT_COF1'] = np.nan 
+df.loc[df['DXA_WBC_RARM_PFAT_COF1'].isin([-88888,-99991,-88880,-99999]),'DXA_WBC_RARM_PFAT_COF1'] = np.nan 
+df.loc[df['DXA_WBC_L_LEG_PFAT_COF1'].isin([-88888,-99991,-88880,-99999]),'DXA_WBC_L_LEG_PFAT_COF1'] = np.nan 
+df.loc[df['DXA_WBC_R_LEG_PFAT_COF1'].isin([-88888,-99991,-88880,-99999]),'DXA_WBC_R_LEG_PFAT_COF1'] = np.nan 
+df.loc[df['DXA_WBC_TRUNK_PFAT_COF1'].isin([-88888,-99991,-88880,-99999]),'DXA_WBC_TRUNK_PFAT_COF1'] = np.nan 
+df.loc[df['DXA_WBC_HEAD_PFAT_COF1'].isin([-88888,-99991,-88880,-99999]),'DXA_WBC_HEAD_PFAT_COF1'] = np.nan
 
 BodyFatAreas =['DXA_WBC_LARM_PFAT_COF1','DXA_WBC_RARM_PFAT_COF1','DXA_WBC_L_LEG_PFAT_COF1',
                    'DXA_WBC_R_LEG_PFAT_COF1','DXA_WBC_TRUNK_PFAT_COF1','DXA_WBC_HEAD_PFAT_COF1']
+
 BodyFatAreas_Individual = df[BodyFatAreas]
 BodyFatAreas_P95 = BodyFatAreas_Individual.quantile(0.95)
 ExcessBodyFatArea=BodyFatAreas_Individual>=BodyFatAreas_P95
@@ -332,6 +337,7 @@ DF.loc[(ExcessBodyFatArea_Count==4),'AGGREGATE_BODY_FAT']=0.8
 DF.loc[(ExcessBodyFatArea_Count>=5),'AGGREGATE_BODY_FAT']=1
 
 # Domain 5: Spirometry measures
+"""""
 FVC = ['spr_fvc_t1_cof1'.upper(),'spr_fvc_t2_cof1'.upper(),'spr_fvc_t3_cof1'.upper(),
          'spr_fvc_t4_cof1'.upper(),'spr_fvc_t5_cof1'.upper(),'spr_fvc_t6_cof1'.upper(),
          'spr_fvc_t7_cof1'.upper(),'spr_fvc_t8_cof1'.upper()]
@@ -339,14 +345,6 @@ FVCDF = df[FVC]
 df['FVC_Max'.upper()] = FVCDF.max(axis=1, skipna=True)
 DF['FVC_Max'.upper()] = stratified_scaling(df, 'FVC_Max'.upper() , inverse=True)
 
-df.loc[df['SPR_FEV1_FVC_T1_COF1'].isin([777]),'SPR_FEV1_FVC_T1_COF1'] = np.nan
-df.loc[df['SPR_FEV1_FVC_T2_COF1'].isin([777]),'SPR_FEV1_FVC_T2_COF1'] = np.nan
-df.loc[df['SPR_FEV1_FVC_T3_COF1'].isin([777]),'SPR_FEV1_FVC_T3_COF1'] = np.nan
-df.loc[df['SPR_FEV1_FVC_T4_COF1'].isin([777]),'SPR_FEV1_FVC_T4_COF1'] = np.nan
-df.loc[df['SPR_FEV1_FVC_T5_COF1'].isin([777]),'SPR_FEV1_FVC_T5_COF1'] = np.nan
-df.loc[df['SPR_FEV1_FVC_T6_COF1'].isin([777]),'SPR_FEV1_FVC_T6_COF1'] = np.nan
-df.loc[df['SPR_FEV1_FVC_T7_COF1'].isin([777]),'SPR_FEV1_FVC_T7_COF1'] = np.nan
-df.loc[df['SPR_FEV1_FVC_T8_COF1'].isin([777]),'SPR_FEV1_FVC_T8_COF1'] = np.nan
 
 FEV1 = ['SPR_FEV1_FVC_T1_COF1','SPR_FEV1_FVC_T2_COF1','SPR_FEV1_FVC_T3_COF1',
         'SPR_FEV1_FVC_T4_COF1','SPR_FEV1_FVC_T5_COF1','SPR_FEV1_FVC_T6_COF1',
@@ -354,25 +352,35 @@ FEV1 = ['SPR_FEV1_FVC_T1_COF1','SPR_FEV1_FVC_T2_COF1','SPR_FEV1_FVC_T3_COF1',
 FEV1DF = df[FEV1]
 df['FEV1_MAX'] = FEV1DF.max(axis=1, skipna=True)
 DF['FEV1_MAX'] = stratified_scaling(df, 'FEV1_MAX' , inverse=True)
-
+"""
 # Domain 6: Hearing and vision
-df.loc[df['va_etdrs_l_rslt_cof1'.upper()].isin([-88.8]),'va_etdrs_l_rslt_cof1'.upper()] = np.nan
+df.loc[df['va_etdrs_l_rslt_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'va_etdrs_l_rslt_cof1'.upper()] = np.nan
 DF['va_etdrs_l_rslt_cof1'.upper()] = stratified_scaling(df, 'va_etdrs_l_rslt_cof1'.upper() , inverse=True)
-df.loc[df['va_etdrs_r_rslt_cof1'.upper()].isin([-88.8]),'va_etdrs_r_rslt_cof1'.upper()] = np.nan
+df.loc[df['va_etdrs_r_rslt_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'va_etdrs_r_rslt_cof1'.upper()] = np.nan
 DF['va_etdrs_r_rslt_cof1'.upper()] = stratified_scaling(df, 'va_etdrs_r_rslt_cof1'.upper() , inverse=True)
+df.loc[df['ton_iopcc_r_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_iopcc_r_cof1'.upper()] = np.nan
 DF['ton_iopcc_r_cof1'.upper()] = (df['ton_iopcc_r_cof1'.upper()]<11) | (df['ton_iopcc_r_cof1'.upper()]>21)
+df.loc[df['ton_iopcc_l_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_iopcc_l_cof1'.upper()] = np.nan
 DF['ton_iopcc_l_cof1'.upper()] = (df['ton_iopcc_l_cof1'.upper()]<11) | (df['ton_iopcc_l_cof1'.upper()]>21)
+df.loc[df['ton_ch_r_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_ch_r_cof1'.upper()] = np.nan
 DF['ton_ch_r_cof1'.upper()] = df['ton_ch_r_cof1'.upper()]<=9
+df.loc[df['ton_ch_l_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_ch_l_cof1'.upper()] = np.nan
 DF['ton_ch_l_cof1'.upper()] = df['ton_ch_l_cof1'.upper()]<=9
 
+df.loc[df['bp_systolic_avg_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'bp_systolic_avg_cof1'.upper()] = np.nan
+df.loc[df['bp_diastolic_avg_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'bp_diastolic_avg_cof1'.upper()] = np.nan
 Mean_Arterial_Pressure = df['bp_systolic_avg_cof1'.upper()] + 2*df['bp_diastolic_avg_cof1'.upper()] 
+
+df.loc[df['ton_iopg_r_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_iopg_r_cof1'.upper()] = np.nan
+df.loc[df['ton_iopg_l_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_iopg_l_cof1'.upper()] = np.nan
 Mean_Intraocular_Pressure = (df['ton_iopg_r_cof1'.upper()] + df['ton_iopg_l_cof1'.upper()])/2
 Ocular_Perfusion_Pressure = ((2/3)*Mean_Arterial_Pressure) - Mean_Intraocular_Pressure
 DF['Mean_Ocular_Perfusion_Pressure'.upper()] = Ocular_Perfusion_Pressure >= 42
 
-df.loc[df['hrg_right_1k_cof1'.upper()].isin([-8]),'hrg_right_1k_cof1'.upper()] = np.nan
-df.loc[df['hrg_right_2k_cof1'.upper()].isin([-8]),'hrg_right_2k_cof1'.upper()] = np.nan
-
+df.loc[df['hrg_right_1k_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'hrg_right_1k_cof1'.upper()] = np.nan
+df.loc[df['hrg_right_2k_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'hrg_right_2k_cof1'.upper()] = np.nan
+df.loc[df['hrg_right_500_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'hrg_right_500_cof1'.upper()] = np.nan
+df.loc[df['hrg_right_4k_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'hrg_right_4k_cof1'.upper()] = np.nan
 columns_to_average = ['hrg_right_500_cof1'.upper(),'hrg_right_1k_cof1'.upper(),
                       'hrg_right_2k_cof1'.upper(),'hrg_right_4k_cof1'.upper()]
 
@@ -380,7 +388,10 @@ columns_to_average = ['hrg_right_500_cof1'.upper(),'hrg_right_1k_cof1'.upper(),
 df['Pure_Tone_R'.upper()] = df[columns_to_average].mean(axis=1)
 DF['Pure_Tone_R'.upper()] = stratified_scaling(df, 'Pure_Tone_R'.upper() , inverse=True)
 
-df.loc[df['hrg_left_1k_cof1'.upper()].isin([-8]),'hrg_left_1k_cof1'.upper()] = np.nan
+df.loc[df['hrg_left_500_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'hrg_left_500_cof1'.upper()] = np.nan
+df.loc[df['hrg_left_1k_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'hrg_left_1k_cof1'.upper()] = np.nan
+df.loc[df['hrg_left_2k_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'hrg_left_2k_cof1'.upper()] = np.nan
+df.loc[df['hrg_left_4k_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'hrg_left_4k_cof1'.upper()] = np.nan
 columns_to_average = ['hrg_left_500_cof1'.upper(),'hrg_left_1k_cof1'.upper(),
                       'hrg_left_2k_cof1'.upper(),'hrg_left_4k_cof1'.upper()]
 
@@ -407,7 +418,7 @@ FIExaminationData.loc[:,'FI_Examination'] = FIExamination
 from pathlib import Path
 
 # Define the folder and file name
-output_file = Path(r"E:\CLSA\CLSA\results\FIExamination_BL.xlsx")
+output_file = Path(r"E:\CLSA\CLSA\results\FIExamination_FUP.xlsx")
 
 # Create the folder automatically if it is missing
 output_file.parent.mkdir(parents=True, exist_ok=True)
