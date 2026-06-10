@@ -23,7 +23,8 @@ df_BL = pd.read_csv(file_path_BL, usecols=required_columns_BL)
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 # print(ColumnNames)
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
-FIBloodCount = 22;DF = pd.DataFrame()
+FIBloodCount = 21#22
+DF = pd.DataFrame()
 
 required_columns =['entity_id','AGE_NMBR_COF1',
                    'BLD_GR_PER_COF1','BLD_Hct_COF1',
@@ -78,6 +79,7 @@ DF["BLD_FERR_COF1"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_FERR_COF1']<20)|(df['B
 DF["BLD_CHOL_COF1"] = (df["BLD_CHOL_COF1"]<3.9) | (df["BLD_CHOL_COF1"]>6.5)
 DF["BLD_TRIG_COF1"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_TRIG_COF1']<0.45)|(df['BLD_TRIG_COF1']>1.81)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_TRIG_COF1']<0.36)|(df['BLD_TRIG_COF1']>1.12)))
 
+print(DF)
 RAWDF=DF
 IsEmpty = DF.isna() | (DF == "")
 DataNA = IsEmpty.sum(axis=1)
@@ -90,7 +92,7 @@ DataAvailable = NotEmpty.sum(axis=1)
 
 DeficitsCount = DF.sum(axis=1)
 FIBlood = DeficitsCount/DataAvailable
-FIBloodData = df[['entity_id','AGE_NMBR_COF1', 'SEX_ASK_COM']]
+FIBloodData = df[['entity_id','AGE_NMBR_COF1', 'SEX_ASK_COM']].copy()
 FIBloodData['FI_blood'] = FIBlood
 FIBloodData.loc[:,'FI_blood'] = FIBlood
 

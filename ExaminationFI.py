@@ -77,7 +77,8 @@ def stratified_scaling(df, target_col, group_col='SEX_ASK_COM', inverse=False):
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 #print(ColumnNames)
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
-FIExaminationCount = 47;DF = pd.DataFrame()
+FIExaminationCount = 44 #47
+DF = pd.DataFrame()
 
 required_columns =['AGE_NMBR_COM',
                    'SEX_ASK_COM', 'ED_HIGH_COM', 
@@ -113,7 +114,10 @@ required_columns =['AGE_NMBR_COM',
                    'ton_ch_l_com','ton_ch_r_com','ton_iopg_r_com','ton_iopg_l_com',
                    'bp_systolic_avg_com','bp_diastolic_avg_com',
                    'hrg_right_500_com','hrg_right_1k_com','hrg_right_2k_com','hrg_right_4k_com',
-                   'hrg_left_500_com','hrg_left_1k_com','hrg_left_2k_com','hrg_left_4k_com']
+                   'hrg_left_500_com','hrg_left_1k_com','hrg_left_2k_com','hrg_left_4k_com',
+                   'ICQ_HRTCOND_COM','ICQ_SRGYHRT_COM','ICQ_SRGYCHT_COM','ICQ_BLDSP3MO_COM',
+                   'ICQ_ANEURY_COM','ICQ_EMB6WK_COM','ICQ_EMBMED_COM','ICQ_NGTUBE_COM',
+                   'ICQ_DERET3MO_COM','ICQ_SRGYEYE_COM','ICQ_EYEINF_COM']
 
 
 #'imt_r_avg_com','imt_l_avg_com'
@@ -236,13 +240,27 @@ Osteoporosis =['dxa_wb_head_bmd_com'.upper(),'dxa_wb_larm_bmd_com'.upper(),
                'dxa_wb_l_s_bmd_com'.upper(),'dxa_wb_pelv_bmd_com'.upper(),
                'dxa_wb_lleg_bmd_com'.upper(),'dxa_wb_rleg_bmd_com'.upper()]
 
-Osteoporosis_T = (df[Osteoporosis] - df[Osteoporosis].mean()) / df[Osteoporosis].std()
+Osteoporosis_T = pd.DataFrame(index=df.index)
+for region in Osteoporosis:
+    ref_stats = (
+        df.loc[df['AGE_NMBR_COM'] == 45]
+        .groupby('SEX_ASK_COM')[region]
+        .agg(['mean', 'std'])
+    )
+
+    ref_mean = df['SEX_ASK_COM'].map(ref_stats['mean'])
+    ref_std = df['SEX_ASK_COM'].map(ref_stats['std'])
+
+    Osteoporosis_T[f'{region}_Tscore'] = (df[region] - ref_mean) / ref_std
+
+#Osteoporosis_T = (df[Osteoporosis] - df[Osteoporosis].mean()) / df[Osteoporosis].std()
 Osteoporosis_T_TF = Osteoporosis_T<=-2.5
 Osteoporosis_T_Count = Osteoporosis_T_TF.sum(axis=1)
 DF['DXA_Osteoporosis_BMD_T'] = np.nan
 DF.loc[(Osteoporosis_T_Count>=2),'DXA_Osteoporosis_BMD_T']=1
 DF.loc[(Osteoporosis_T_Count==1),'DXA_Osteoporosis_BMD_T']=0.5
 DF.loc[(Osteoporosis_T_Count==0),'DXA_Osteoporosis_BMD_T']=0
+
 DF['DXA_OI_APDG_LEAN_MASS_H2_COM'] = stratified_scaling(df, 'DXA_OI_APDG_LEAN_MASS_H2_COM', inverse=True)
 DF['DXA_OI_TOTAL_PERCENT_FAT_COM'] = stratified_scaling(df, 'DXA_OI_TOTAL_PERCENT_FAT_COM', inverse=False)
 BodyFatAreas =['DXA_WBC_LARM_PFAT_COM','DXA_WBC_RARM_PFAT_COM','DXA_WBC_L_LEG_PFAT_COM',
@@ -264,8 +282,18 @@ FVC = ['spr_fvc_t1_com'.upper(),'spr_fvc_t2_com'.upper(),'spr_fvc_t3_com'.upper(
          'spr_fvc_t4_com'.upper(),'spr_fvc_t5_com'.upper(),'spr_fvc_t6_com'.upper(),
          'spr_fvc_t7_com'.upper(),'spr_fvc_t8_com'.upper()]
 FVCDF = df[FVC]
+FVCDF_VALID = FVCDF.count(axis=1)
 df['FVC_Max'.upper()] = FVCDF.max(axis=1, skipna=True)
 DF['FVC_Max'.upper()] = stratified_scaling(df, 'FVC_Max'.upper() , inverse=True)
+DF.loc[(FVCDF_VALID<3) , 'FVC_Max'.upper()] = np.nan
+
+
+DF.loc[(df['ICQ_HRTCOND_COM']==1) | (df['ICQ_SRGYHRT_COM']==1) | (df['ICQ_SRGYCHT_COM'].isin([1,2,3])) |
+       (df['ICQ_BLDSP3MO_COM']==1) | (df['ICQ_ANEURY_COM']==1) | (df['ICQ_EMB6WK_COM']==1) |
+       (df['ICQ_EMBMED_COM']==1) , 'FVC_Max'.upper()] = 1
+
+DF.loc[(df['ICQ_NGTUBE_COM']==1) | (df['ICQ_DERET3MO_COM']==1) | (df['ICQ_SRGYEYE_COM'].isin([1,2,3]))
+       , 'FVC_Max'.upper()] = np.nan
 
 df.loc[df['SPR_FEV1_FVC_T1_COM'].isin([777]),'SPR_FEV1_FVC_T1_COM'] = np.nan
 df.loc[df['SPR_FEV1_FVC_T2_COM'].isin([777]),'SPR_FEV1_FVC_T2_COM'] = np.nan
@@ -280,8 +308,11 @@ FEV1 = ['SPR_FEV1_FVC_T1_COM','SPR_FEV1_FVC_T2_COM','SPR_FEV1_FVC_T3_COM',
         'SPR_FEV1_FVC_T4_COM','SPR_FEV1_FVC_T5_COM','SPR_FEV1_FVC_T6_COM',
         'SPR_FEV1_FVC_T7_COM','SPR_FEV1_FVC_T8_COM']
 FEV1DF = df[FEV1]
+FEV1DF_VALID = FEV1DF.count(axis=1)
+
 df['FEV1_MAX'] = FEV1DF.max(axis=1, skipna=True)
 DF['FEV1_MAX'] = stratified_scaling(df, 'FEV1_MAX' , inverse=True)
+DF.loc[(FEV1DF_VALID<3) , 'FEV1_MAX'.upper()] = np.nan
 
 # Domain 6: Hearing and vision
 df.loc[df['va_etdrs_l_rslt_com'.upper()].isin([-88.8]),'va_etdrs_l_rslt_com'.upper()] = np.nan
@@ -289,9 +320,17 @@ DF['va_etdrs_l_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_l_rslt_com'
 df.loc[df['va_etdrs_r_rslt_com'.upper()].isin([-88.8]),'va_etdrs_r_rslt_com'.upper()] = np.nan
 DF['va_etdrs_r_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_r_rslt_com'.upper() , inverse=True)
 DF['ton_iopcc_r_com'.upper()] = (df['ton_iopcc_r_com'.upper()]<11) | (df['ton_iopcc_r_com'.upper()]>21)
+DF.loc[(df['ICQ_DERET3MO_COM']==1) | (df['ICQ_SRGYEYE_COM'].isin([1,2,3])), 'ton_iopcc_r_com'.upper()] = 1
+DF.loc[df['ICQ_EYEINF_COM'].isin([1,2,3]) , 'ton_iopcc_r_com'.upper()] = np.nan
 DF['ton_iopcc_l_com'.upper()] = (df['ton_iopcc_l_com'.upper()]<11) | (df['ton_iopcc_l_com'.upper()]>21)
+DF.loc[(df['ICQ_DERET3MO_COM']==1) | (df['ICQ_SRGYEYE_COM'].isin([1,2,3])), 'ton_iopcc_l_com'.upper()] = 1
+DF.loc[df['ICQ_EYEINF_COM'].isin([1,2,3]) , 'ton_iopcc_l_com'.upper()] = np.nan
 DF['ton_ch_r_com'.upper()] = df['ton_ch_r_com'.upper()]<=9
+DF.loc[(df['ICQ_DERET3MO_COM']==1) | (df['ICQ_SRGYEYE_COM'].isin([1,2,3])), 'ton_ch_r_com'.upper()] = 1
+DF.loc[df['ICQ_EYEINF_COM'].isin([1,2,3]) , 'ton_ch_r_com'.upper()] = np.nan
 DF['ton_ch_l_com'.upper()] = df['ton_ch_l_com'.upper()]<=9
+DF.loc[(df['ICQ_DERET3MO_COM']==1) | (df['ICQ_SRGYEYE_COM'].isin([1,2,3])), 'ton_ch_l_com'.upper()] = 1
+DF.loc[df['ICQ_EYEINF_COM'].isin([1,2,3]) , 'ton_ch_l_com'.upper()] = np.nan
 
 Mean_Arterial_Pressure = df['bp_systolic_avg_com'.upper()] + 2*df['bp_diastolic_avg_com'.upper()] 
 Mean_Intraocular_Pressure = (df['ton_iopg_r_com'.upper()] + df['ton_iopg_l_com'.upper()])/2
@@ -316,7 +355,7 @@ columns_to_average = ['hrg_left_500_com'.upper(),'hrg_left_1k_com'.upper(),
 df['Pure_Tone_L'.upper()] = df[columns_to_average].mean(axis=1)
 DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=True)
 
-
+print(DF)
 RAWDF=DF
 IsEmpty = DF.isna() | (DF == "")
 DataNA = IsEmpty.sum(axis=1)

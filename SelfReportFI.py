@@ -273,7 +273,7 @@ print(DF.dtypes)
 
 DeficitsCount = DF.sum(axis=1)
 FISelfReport = DeficitsCount/DataAvailable
-FISelfReportData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']]
+FISelfReportData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']].copy()
 #FISelfReportData['FI_SelfReport'] = FISelfReport
 FISelfReportData.loc[:,'FI_SelfReport'] = FISelfReport
 

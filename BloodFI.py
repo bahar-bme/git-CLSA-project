@@ -75,6 +75,7 @@ DF["BLD_CHOL_COM"] = (df["BLD_CHOL_COM"]<3.9) | (df["BLD_CHOL_COM"]>6.5)
 df.loc[df['BLD_TRIG_COM'].isin([-8888]),'BLD_TRIG_COM'] = np.nan
 DF["BLD_TRIG_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_TRIG_COM']<0.45)|(df['BLD_TRIG_COM']>1.81)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_TRIG_COM']<0.36)|(df['BLD_TRIG_COM']>1.12)))
 
+print(DF)
 RAWDF=DF
 
 IsEmpty = DF.isna() | (DF == "")
@@ -84,11 +85,11 @@ DF.drop(RowsToDrop, inplace=True)
 IsEmpty = DF.isna() | (DF == "")
 NotEmpty = ~IsEmpty
 DataAvailable = NotEmpty.sum(axis=1)
-print(DataAvailable)
+#print(DataAvailable)
 
 DeficitsCount = DF.sum(axis=1)
 FIBlood = DeficitsCount/DataAvailable
-FIBloodData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']]
+FIBloodData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']].copy()
 FIBloodData['FI_blood'] = FIBlood
 FIBloodData.loc[:,'FI_blood'] = FIBlood
 

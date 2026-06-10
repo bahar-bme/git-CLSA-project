@@ -82,7 +82,8 @@ def stratified_scaling(df, target_col, group_col='SEX_ASK_COM', inverse=False):
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 #print(ColumnNames)
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
-FIExaminationCount = 47;DF = pd.DataFrame()
+FIExaminationCount = 42 #47
+DF = pd.DataFrame()
 
 required_columns =['AGE_NMBR_COF1',
                    'wlk_time_cof1','cr_avg_time_cof1',
@@ -112,7 +113,9 @@ required_columns =['AGE_NMBR_COF1',
                    'ton_ch_l_cof1','ton_ch_r_cof1','ton_iopg_r_cof1','ton_iopg_l_cof1',
                    'bp_systolic_avg_cof1','bp_diastolic_avg_cof1',
                    'hrg_right_500_cof1','hrg_right_1k_cof1','hrg_right_2k_cof1','hrg_right_4k_cof1',
-                   'hrg_left_500_cof1','hrg_left_1k_cof1','hrg_left_2k_cof1','hrg_left_4k_cof1']
+                   'hrg_left_500_cof1','hrg_left_1k_cof1','hrg_left_2k_cof1','hrg_left_4k_cof1',
+                   'ICQ_DERET3MO_COF1','ICQ_SRGYEYE_COF1','ICQ_EYEINF_COF1']
+
 
 # 'spr_fvc_t2_cof1','SPR_FEV1_FVC_T2_COF1','SPR_FEV1_FVC_T3_COF1','SPR_FEV1_FVC_T8_COF1','SPR_FEV1_FVC_T6_COF1','SPR_FEV1_FVC_T1_COF1',
 #'STP_STARTLANG_COF1','spr_fvc_t4_cof1','spr_fvc_t5_cof1','spr_fvc_t7_cof1','SPR_FEV1_FVC_T7_COF1','spr_fvc_t8_cof1','SPR_FEV1_FVC_T5_COF1',
@@ -300,7 +303,20 @@ Osteoporosis =['dxa_wb_head_bmd_cof1'.upper(),'dxa_wb_larm_bmd_cof1'.upper(),
                'dxa_wb_l_s_bmd_cof1'.upper(),'dxa_wb_pelv_bmd_cof1'.upper(),
                'dxa_wb_lleg_bmd_cof1'.upper(),'dxa_wb_rleg_bmd_cof1'.upper()]
 
-Osteoporosis_T = (df[Osteoporosis] - df[Osteoporosis].mean()) / df[Osteoporosis].std()
+Osteoporosis_T = pd.DataFrame(index=df.index)
+for region in Osteoporosis:
+    ref_stats = (
+        df.loc[df['AGE_NMBR_COF1'] == 45]
+        .groupby('SEX_ASK_COM')[region]
+        .agg(['mean', 'std'])
+    )
+
+    ref_mean = df['SEX_ASK_COM'].map(ref_stats['mean'])
+    ref_std = df['SEX_ASK_COM'].map(ref_stats['std'])
+
+    Osteoporosis_T[f'{region}_Tscore'] = (df[region] - ref_mean) / ref_std
+
+#Osteoporosis_T = (df[Osteoporosis] - df[Osteoporosis].mean()) / df[Osteoporosis].std()
 Osteoporosis_T_TF = Osteoporosis_T<=-2.5
 Osteoporosis_T_Count = Osteoporosis_T_TF.sum(axis=1)
 DF['DXA_Osteoporosis_BMD_T'] = np.nan
@@ -360,12 +376,20 @@ df.loc[df['va_etdrs_r_rslt_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'v
 DF['va_etdrs_r_rslt_cof1'.upper()] = stratified_scaling(df, 'va_etdrs_r_rslt_cof1'.upper() , inverse=True)
 df.loc[df['ton_iopcc_r_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_iopcc_r_cof1'.upper()] = np.nan
 DF['ton_iopcc_r_cof1'.upper()] = (df['ton_iopcc_r_cof1'.upper()]<11) | (df['ton_iopcc_r_cof1'.upper()]>21)
+DF.loc[(df['ICQ_DERET3MO_COF1']==1) | (df['ICQ_SRGYEYE_COF1'].isin([1,2,3])), 'ton_iopcc_r_cof1'.upper()] = 1
+DF.loc[df['ICQ_EYEINF_COF1'].isin([1,2,3]) , 'ton_iopcc_r_cof1'.upper()] = np.nan
 df.loc[df['ton_iopcc_l_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_iopcc_l_cof1'.upper()] = np.nan
 DF['ton_iopcc_l_cof1'.upper()] = (df['ton_iopcc_l_cof1'.upper()]<11) | (df['ton_iopcc_l_cof1'.upper()]>21)
+DF.loc[(df['ICQ_DERET3MO_COF1']==1) | (df['ICQ_SRGYEYE_COF1'].isin([1,2,3])), 'ton_iopcc_l_cof1'.upper()] = 1
+DF.loc[df['ICQ_EYEINF_COF1'].isin([1,2,3]) , 'ton_iopcc_l_cof1'.upper()] = np.nan
 df.loc[df['ton_ch_r_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_ch_r_cof1'.upper()] = np.nan
 DF['ton_ch_r_cof1'.upper()] = df['ton_ch_r_cof1'.upper()]<=9
+DF.loc[(df['ICQ_DERET3MO_COF1']==1) | (df['ICQ_SRGYEYE_COF1'].isin([1,2,3])), 'ton_ch_r_cof1'.upper()] = 1
+DF.loc[df['ICQ_EYEINF_COF1'].isin([1,2,3]) , 'ton_ch_r_cof1'.upper()] = np.nan
 df.loc[df['ton_ch_l_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'ton_ch_l_cof1'.upper()] = np.nan
 DF['ton_ch_l_cof1'.upper()] = df['ton_ch_l_cof1'.upper()]<=9
+DF.loc[(df['ICQ_DERET3MO_COF1']==1) | (df['ICQ_SRGYEYE_COF1'].isin([1,2,3])), 'ton_ch_l_cof1'.upper()] = 1
+DF.loc[df['ICQ_EYEINF_COF1'].isin([1,2,3]) , 'ton_ch_l_cof1'.upper()] = np.nan
 
 df.loc[df['bp_systolic_avg_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'bp_systolic_avg_cof1'.upper()] = np.nan
 df.loc[df['bp_diastolic_avg_cof1'.upper()].isin([-88888,-99991,-88880,-99999]),'bp_diastolic_avg_cof1'.upper()] = np.nan
@@ -399,7 +423,7 @@ columns_to_average = ['hrg_left_500_cof1'.upper(),'hrg_left_1k_cof1'.upper(),
 df['Pure_Tone_L'.upper()] = df[columns_to_average].mean(axis=1)
 DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=True)
 
-
+print(DF)
 RAWDF=DF
 IsEmpty = DF.isna() | (DF == "")
 DataNA = IsEmpty.sum(axis=1)
