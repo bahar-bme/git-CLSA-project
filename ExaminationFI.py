@@ -8,6 +8,9 @@ Created on Sun May  3 21:06:49 2026
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_Baseline_CoPv7.csv'
 # Define specific dtypes for columns to optimize memory
@@ -15,6 +18,16 @@ file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_
 #     'MEDI_DOSE_FRQ_1_COF1': 'int8',
     
 # }
+def prevalence(df, target_col):
+    """Plots a chosen target column against age."""
+    prevalence = df[target_col].mean()
+    print(f"Prevalence of {target_col}: {prevalence:.2%}")
+    # Alternative: Automated binned scatter plot with error bars
+    sns.regplot(
+        data=df, x="AGE_NMBR_COM", y=target_col, x_bins=10, fit_reg=False
+    )
+    plt.show()
+
 
 """
 def stratify_normalize(df, target_col, group_col='SEX_ASK_COM'):
@@ -72,7 +85,6 @@ def stratified_scaling(df, target_col, group_col='SEX_ASK_COM', inverse=False):
         return scaled.clip(0, 1)
 
     return df.groupby(group_col, dropna=False)[target_col].transform(transform_group)
-
 
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 #print(ColumnNames)
@@ -354,8 +366,9 @@ columns_to_average = ['hrg_left_500_com'.upper(),'hrg_left_1k_com'.upper(),
 # 2. Calculate the average across the rows (axis=1)
 df['Pure_Tone_L'.upper()] = df[columns_to_average].mean(axis=1)
 DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=True)
-
+DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
 print(DF)
+
 RAWDF=DF
 IsEmpty = DF.isna() | (DF == "")
 DataNA = IsEmpty.sum(axis=1)
@@ -383,10 +396,11 @@ output_file.parent.mkdir(parents=True, exist_ok=True)
 FIExaminationData.to_excel(output_file, index=False)
 
 
+##sorted_DF = DF.sort_values(by='AGE_NMBR_COM').reset_index(drop=True)
+##print(sorted_DF)
 
 
 """
-
 
 #print(K)
 #print(df['ecg_result_com'.upper()])

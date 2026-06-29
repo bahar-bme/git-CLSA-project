@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 DF = pd.DataFrame()
 file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_Baseline_CoPv7.csv'
@@ -9,6 +11,16 @@ file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_
 #     'MEDI_DOSE_FRQ_1_COF1': 'int8',
     
 # }
+def prevalence(df, target_col):
+    """Plots a chosen target column against age."""
+    prevalence = df[target_col].mean()
+    print(f"Prevalence of {target_col}: {prevalence:.2%}")
+    # Alternative: Automated binned scatter plot with error bars
+    sns.regplot(
+        data=df, x="AGE_NMBR_COM", y=target_col, x_bins=10, fit_reg=False
+    )
+    plt.show()
+
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 #print(ColumnNames)
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
