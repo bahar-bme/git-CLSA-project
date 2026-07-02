@@ -24,10 +24,43 @@ def prevalence(df, target_col):
     prevalence = df[target_col].mean()
     print(f"Prevalence of {target_col}: {prevalence:.2%}")
     # Alternative: Automated binned scatter plot with error bars
+    plt.figure()
     sns.regplot(
-        data=df, x="AGE_NMBR_COM", y=target_col, x_bins=10, fit_reg=False
+        data=df, x="AGE_NMBR_COM", y=target_col, x_bins=np.arange(45, 90, 1), fit_reg=False
     )
-    plt.show()
+    #plt.show()
+
+
+
+#Plot a parameter vs Age
+def GroupedPlot(df, target_col):
+        # Create your plot axis
+        fig, ax = plt.subplots(figsize=(6, 5))
+
+        # Define your 2 groups and 2 colors
+        categories = df["SEX_ASK_COM"].unique()
+        colors = ["#1f77b4", "#d62728"]
+        # Loop through each group and overlay them on the same axis ('ax=ax')
+        for category, color in zip(categories, colors):
+            subset = df[df["SEX_ASK_COM"] == category]
+            plt.figure()
+            sns.regplot(
+                data=subset,
+                x="AGE_NMBR_COM",
+                y=target_col,
+                x_bins=np.arange(45, 90, 1), fit_reg=False,
+                ax=ax,  # Tells regplot to draw on the same chart
+                color=color,
+                label=category,
+                #scatter=False,  # Hides scatter points as you wanted before
+                #ci=None,
+            )
+
+        # Add the legend manually since regplot won't make a grouped one automatically
+        sns.despine(trim=True)
+
+
+
 
 
 
@@ -63,7 +96,7 @@ DF["BLD_GR_PER_COM"] = (df["BLD_GR_PER_COM"]<45) | (df["BLD_GR_PER_COM"]>75)
 DF["BLD_Hct_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hct_COM']<0.41)|(df['BLD_Hct_COM']>0.53)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hct_COM']<0.36)|(df['BLD_Hct_COM']>0.46)))
 DF["BLD_LY_PER_COM"] = (df["BLD_LY_PER_COM"]<22) | (df["BLD_LY_PER_COM"]>44) 
 DF["BLD_MCH_COM"] = (df["BLD_MCH_COM"]<26) | (df["BLD_MCH_COM"]>34)
-DF["BLD_Hgb_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hgb_COM']<13.5)|(df['BLD_Hgb_COM']>18)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hgb_COM']<12)|(df['BLD_Hgb_COM']>16)))
+DF["BLD_Hgb_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hgb_COM']<=13.5)|(df['BLD_Hgb_COM']>18)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hgb_COM']<=12)|(df['BLD_Hgb_COM']>16)))
 DF["BLD_MO_PER_COM"] = (df["BLD_MO_PER_COM"]>8)
 DF["BLD_Plt_COM"] = (df["BLD_Plt_COM"]<150) | (df["BLD_Plt_COM"]>450)
 DF["BLD_MCV_COM"] = (df["BLD_MCV_COM"]<80) | (df["BLD_MCV_COM"]>96)
@@ -92,7 +125,7 @@ df.loc[df['BLD_CHOL_COM'].isin([-8888]),'BLD_CHOL_COM'] = np.nan
 DF["BLD_CHOL_COM"] = (df["BLD_CHOL_COM"]<3.9) | (df["BLD_CHOL_COM"]>6.5)
 df.loc[df['BLD_TRIG_COM'].isin([-8888]),'BLD_TRIG_COM'] = np.nan
 DF["BLD_TRIG_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_TRIG_COM']<0.45)|(df['BLD_TRIG_COM']>1.81)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_TRIG_COM']<0.36)|(df['BLD_TRIG_COM']>1.12)))
-DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
+
 print(DF)
 RAWDF=DF
 
@@ -105,11 +138,14 @@ NotEmpty = ~IsEmpty
 DataAvailable = NotEmpty.sum(axis=1)
 #print(DataAvailable)
 
+
+
 DeficitsCount = DF.sum(axis=1)
 FIBlood = DeficitsCount/DataAvailable
 FIBloodData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']].copy()
-FIBloodData['FI_blood'] = FIBlood
+#FIBloodData['FI_blood'] = FIBlood
 FIBloodData.loc[:,'FI_blood'] = FIBlood
+
 
 
 from pathlib import Path
@@ -123,7 +159,55 @@ output_file.parent.mkdir(parents=True, exist_ok=True)
 # Save the DataFrame
 FIBloodData.to_excel(output_file, index=False)
 
-prevalence(DF, "bld_gr_per_com".upper())
+
+DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
+DF['SEX_ASK_COM'] = df['SEX_ASK_COM']
+prevalence(DF, "BLD_Hgb_COM")
+GroupedPlot(DF,'BLD_Hgb_COM')
+prevalence(FIBloodData, "FI_blood")
+
+plt.figure()
+plt.scatter(FIBloodData['AGE_NMBR_COM'], FIBloodData['FI_blood'], color='blue', marker='o', alpha=0.8)
+
+"""
+AGE = 'AGE_NMBR_COM'
+
+for col in DF.columns:
+    if col != AGE:
+        prevalence(DF, col)
+
+# 4. Display all Seaborn plots at once
+plt.show()
+"""
+
+# Plot FI vs Age
+
+# Create your plot axis
+fig, ax = plt.subplots(figsize=(6, 5))
+
+# Define your 2 groups and 2 colors
+categories = FIBloodData["SEX_ASK_COM"].unique()
+colors = ["#1f77b4", "#d62728"]
+# Loop through each group and overlay them on the same axis ('ax=ax')
+for category, color in zip(categories, colors):
+    subset = FIBloodData[FIBloodData["SEX_ASK_COM"] == category]
+
+    sns.regplot(
+        data=subset,
+        x="AGE_NMBR_COM",
+        y="FI_blood",
+        x_bins=np.arange(45, 90, 1), fit_reg=False,
+        ax=ax,  # Tells regplot to draw on the same chart
+        color=color,
+        label=category,
+        #scatter=False,  # Hides scatter points as you wanted before
+        #ci=None,
+    )
+
+# Add the legend manually since regplot won't make a grouped one automatically
+ax.legend(title="FI Blood Baseline")
+sns.despine(trim=True)
 
 
+plt.show()
 
