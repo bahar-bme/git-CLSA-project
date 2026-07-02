@@ -23,10 +23,43 @@ def prevalence(df, target_col):
     prevalence = df[target_col].mean()
     print(f"Prevalence of {target_col}: {prevalence:.2%}")
     # Alternative: Automated binned scatter plot with error bars
+    plt.figure()
     sns.regplot(
-        data=df, x="AGE_NMBR_COM", y=target_col, x_bins=10, fit_reg=False
+        data=df, x="AGE_NMBR_COM", y=target_col, x_bins=np.arange(45, 90, 1), fit_reg=False
     )
-    plt.show()
+    #plt.show()
+
+
+
+#Plot a parameter vs Age
+def GroupedPlot(df, target_col):
+        # Create your plot axis
+        fig, ax = plt.subplots(figsize=(6, 5))
+
+        # Define your 2 groups and 2 colors
+        categories = df["SEX_ASK_COM"].unique()
+        colors = ["#1f77b4", "#d62728"]
+        # Loop through each group and overlay them on the same axis ('ax=ax')
+        for category, color in zip(categories, colors):
+            subset = df[df["SEX_ASK_COM"] == category]
+            plt.figure()
+            sns.regplot(
+                data=subset,
+                x="AGE_NMBR_COM",
+                y=target_col,
+                x_bins=np.arange(45, 90, 1), fit_reg=False,
+                ax=ax,  # Tells regplot to draw on the same chart
+                color=color,
+                label=category,
+                #scatter=False,  # Hides scatter points as you wanted before
+                #ci=None,
+            )
+
+        # Add the legend manually since regplot won't make a grouped one automatically
+        sns.despine(trim=True)
+
+
+
 
 
 """
@@ -366,7 +399,6 @@ columns_to_average = ['hrg_left_500_com'.upper(),'hrg_left_1k_com'.upper(),
 # 2. Calculate the average across the rows (axis=1)
 df['Pure_Tone_L'.upper()] = df[columns_to_average].mean(axis=1)
 DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=True)
-DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
 print(DF)
 
 RAWDF=DF
@@ -400,6 +432,29 @@ FIExaminationData.to_excel(output_file, index=False)
 ##print(sorted_DF)
 
 
+
+
+DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
+DF['SEX_ASK_COM'] = df['SEX_ASK_COM']
+#prevalence(DF, "BLD_Hgb_COM")
+#GroupedPlot(DF,'BLD_Hgb_COM')
+prevalence(FIExaminationData, "FI_Examination")
+
+plt.figure()
+plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination'], color='blue', marker='o', alpha=0.8)
+
+"""
+AGE = 'AGE_NMBR_COM'
+
+for col in DF.columns:
+    if col != AGE:
+        prevalence(DF, col)
+
+# 4. Display all Seaborn plots at once
+plt.show()
+"""
+
+
 """
 
 #print(K)
@@ -414,3 +469,97 @@ FIExaminationData.to_excel(output_file, index=False)
 bool_cols = df.select_dtypes(include='bool').columns
 df[bool_cols] = df[bool_cols].astype(int)
 """
+""""
+plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination'], color='blue', marker='o', alpha=0.8)
+
+# 3. Add labels and a title
+plt.title("FI Examination Baseline")
+plt.xlabel("Age")
+plt.ylabel("FI Examination")
+
+# 4. Display the graph
+plt.show()
+"""
+
+#prevalence(FIExaminationData, "FI_Examination")
+
+"""
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_theme(style="ticks", font_scale=1.2, font="DejaVu Sans")
+
+journal_colors = ["#1f77b4", "#d62728"]
+# lmplot creates the scatter plot, colors by hue, and draws individual trend lines
+g = sns.lmplot(
+    data=FIExaminationData, x="AGE_NMBR_COM", y="FI_Examination", hue="SEX_ASK_COM", ci=None,
+    #palette=["red", "blue"],  # Changes both point and line colors per group
+    palette=journal_colors,
+    legend=False,  # We will place a cleaner manual legend
+    line_kws={"lw": 2.5, "linestyle": "-"},  # Clean, solid lines
+    height=5,
+    aspect=1.2,
+    #markers=["o", "s"],  # 'o' = circle for group 1, 's' = square for group 2
+    #scatter_kws={
+    #    "s": 80,  # Size of the scatter points
+    #    "alpha": 0.2,  # Transparency of points (0 = clear, 1 = solid)
+    #    "edgecolor": "none",  # Add a border around points
+    #},
+    scatter=False,
+    #line_kws={
+    #    "lw": 3,  # Line width/thickness of the trendlines
+    #    "linestyle": "--",  # Makes the trendlines dashed (use '-' for solid)
+    #},
+)
+
+# 4. Clean up the axes and labels
+ax = g.ax
+ax.set_xlabel("Age", fontsize=14, fontweight="bold")
+ax.set_ylabel("FI Examination", fontsize=14, fontweight="bold")
+ax.set_title("FI Examination Baseline", fontsize=16, pad=15)
+
+# Remove the top and right spines (borders) for a clean look
+sns.despine(trim=True)  # Trimmed spines look sharper in print
+
+# 5. Add a precise, clean legend inside the plot area
+ax.legend(
+    title="Categories",
+    title_fontsize=12,
+    fontsize=11,
+    loc="best",  # Automatically places it in the least crowded spot
+    frameon=True,
+    facecolor="white",
+    edgecolor="none",
+)
+
+plt.title("FI Examination Baseline")
+plt.show()
+"""
+#Plot FI vs age
+
+# Create your plot axis
+fig, ax = plt.subplots(figsize=(6, 5))
+
+# Define your 2 groups and 2 colors
+categories = FIExaminationData["SEX_ASK_COM"].unique()
+colors = ["#1f77b4", "#d62728"]
+# Loop through each group and overlay them on the same axis ('ax=ax')
+for category, color in zip(categories, colors):
+    subset = FIExaminationData[FIExaminationData["SEX_ASK_COM"] == category]
+
+    sns.regplot(
+        data=subset,
+        x="AGE_NMBR_COM",
+        y="FI_Examination",
+        x_bins=np.arange(45, 90, 1), fit_reg=False,
+        ax=ax,  # Tells regplot to draw on the same chart
+        color=color,
+        label=category,
+        #scatter=False,  # Hides scatter points as you wanted before
+        #ci=None,
+    )
+
+# Add the legend manually since regplot won't make a grouped one automatically
+ax.legend(title="FI Examination Baseline")
+sns.despine(trim=True)
+plt.show()
+
