@@ -169,16 +169,18 @@ prevalence(FIBloodData, "FI_blood")
 plt.figure()
 plt.scatter(FIBloodData['AGE_NMBR_COM'], FIBloodData['FI_blood'], color='blue', marker='o', alpha=0.8)
 
-"""
-AGE = 'AGE_NMBR_COM'
+
+# plot each parameter vs age and output the prevalence
+
+AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
+excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
 
 for col in DF.columns:
-    if col != AGE:
+    if col not in excluded_cols:
         prevalence(DF, col)
 
 # 4. Display all Seaborn plots at once
 plt.show()
-"""
 
 # Plot FI vs Age
 

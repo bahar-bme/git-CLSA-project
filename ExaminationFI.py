@@ -438,16 +438,18 @@ DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
 DF['SEX_ASK_COM'] = df['SEX_ASK_COM']
 #prevalence(DF, "BLD_Hgb_COM")
 #GroupedPlot(DF,'BLD_Hgb_COM')
-prevalence(FIExaminationData, "FI_Examination")
+#prevalence(FIExaminationData, "FI_Examination")
 
-plt.figure()
-plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination'], color='blue', marker='o', alpha=0.8)
+#plt.figure()
+#plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination'], color='blue', marker='o', alpha=0.8)
 
 """
-AGE = 'AGE_NMBR_COM'
+# plot each parameter vs age and output the prevalence
+AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
+excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
 
 for col in DF.columns:
-    if col != AGE:
+    if col not in excluded_cols:
         prevalence(DF, col)
 
 # 4. Display all Seaborn plots at once
@@ -456,15 +458,6 @@ plt.show()
 
 
 """
-
-#print(K)
-#print(df['ecg_result_com'.upper()])
-#print(max(df['tmt_itpexact_com'.upper()]))
-#import matplotlib.pyplot as plt
-#import numpy as np
-#plt.hist(DF['va_etdrs_r_rslt_com'.upper()], bins=20,color='skyblue', edgecolor='black')
-#plt.show()
-
 # Select boolean columns and overwrite them with 1 and 0
 bool_cols = df.select_dtypes(include='bool').columns
 df[bool_cols] = df[bool_cols].astype(int)
@@ -483,57 +476,6 @@ plt.show()
 
 #prevalence(FIExaminationData, "FI_Examination")
 
-"""
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set_theme(style="ticks", font_scale=1.2, font="DejaVu Sans")
-
-journal_colors = ["#1f77b4", "#d62728"]
-# lmplot creates the scatter plot, colors by hue, and draws individual trend lines
-g = sns.lmplot(
-    data=FIExaminationData, x="AGE_NMBR_COM", y="FI_Examination", hue="SEX_ASK_COM", ci=None,
-    #palette=["red", "blue"],  # Changes both point and line colors per group
-    palette=journal_colors,
-    legend=False,  # We will place a cleaner manual legend
-    line_kws={"lw": 2.5, "linestyle": "-"},  # Clean, solid lines
-    height=5,
-    aspect=1.2,
-    #markers=["o", "s"],  # 'o' = circle for group 1, 's' = square for group 2
-    #scatter_kws={
-    #    "s": 80,  # Size of the scatter points
-    #    "alpha": 0.2,  # Transparency of points (0 = clear, 1 = solid)
-    #    "edgecolor": "none",  # Add a border around points
-    #},
-    scatter=False,
-    #line_kws={
-    #    "lw": 3,  # Line width/thickness of the trendlines
-    #    "linestyle": "--",  # Makes the trendlines dashed (use '-' for solid)
-    #},
-)
-
-# 4. Clean up the axes and labels
-ax = g.ax
-ax.set_xlabel("Age", fontsize=14, fontweight="bold")
-ax.set_ylabel("FI Examination", fontsize=14, fontweight="bold")
-ax.set_title("FI Examination Baseline", fontsize=16, pad=15)
-
-# Remove the top and right spines (borders) for a clean look
-sns.despine(trim=True)  # Trimmed spines look sharper in print
-
-# 5. Add a precise, clean legend inside the plot area
-ax.legend(
-    title="Categories",
-    title_fontsize=12,
-    fontsize=11,
-    loc="best",  # Automatically places it in the least crowded spot
-    frameon=True,
-    facecolor="white",
-    edgecolor="none",
-)
-
-plt.title("FI Examination Baseline")
-plt.show()
-"""
 #Plot FI vs age
 
 # Create your plot axis
