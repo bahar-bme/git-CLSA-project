@@ -17,7 +17,7 @@ def prevalence(df, target_col):
     print(f"Prevalence of {target_col}: {prevalence:.2%}")
     # Alternative: Automated binned scatter plot with error bars
     sns.regplot(
-        data=df, x="AGE_NMBR_COM", y=target_col, x_bins=10, fit_reg=False
+        data=df, x="AGE_NMBR_COM", y=target_col, x_bins=np.arange(45, 90, 1), fit_reg=False
     )
     plt.show()
 
@@ -299,3 +299,115 @@ output_file.parent.mkdir(parents=True, exist_ok=True)
 
 # Save the DataFrame
 FISelfReportData.to_excel(output_file, index=False)
+"""
+plt.scatter(FISelfReportData['AGE_NMBR_COM'], FISelfReportData['FI_SelfReport'], color='blue', marker='o', alpha=0.8)
+
+# 3. Add labels and a title
+plt.title("FI Self Report Baseline")
+plt.xlabel("Age")
+plt.ylabel("FI Self Report")
+
+# 4. Display the graph
+plt.show()
+"""
+#prevalence(FISelfReportData, "FI_SelfReport")
+
+
+# Create your plot axis
+fig, ax = plt.subplots(figsize=(6, 5))
+
+# Define your 2 groups and 2 colors
+categories = FISelfReportData["SEX_ASK_COM"].unique()
+colors = ["#1f77b4", "#d62728"]
+# Loop through each group and overlay them on the same axis ('ax=ax')
+for category, color in zip(categories, colors):
+    subset = FISelfReportData[FISelfReportData["SEX_ASK_COM"] == category]
+
+    sns.regplot(
+        data=subset,
+        x="AGE_NMBR_COM",
+        y="FI_SelfReport",
+        x_bins=np.arange(45, 90, 1), fit_reg=False,
+        ax=ax,  # Tells regplot to draw on the same chart
+        color=color,
+        label=category,
+        #scatter=False,  # Hides scatter points as you wanted before
+        #ci=None,
+    )
+
+# Add the legend manually since regplot won't make a grouped one automatically
+ax.legend(title="FI Self Report Baseline")
+sns.despine(trim=True)
+plt.show()
+
+#prevalence(FISelfReportData, "FI_SelfReport")
+
+
+"""
+# plot each parameter vs age and output the prevalence
+AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
+excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
+
+for col in DF.columns:
+    if col not in excluded_cols:
+        prevalence(DF, col)
+
+# 4. Display all Seaborn plots at once
+plt.show()
+"""
+
+
+
+
+"""
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_theme(style="ticks", font_scale=1.2, font="DejaVu Sans")
+
+journal_colors = ["#1f77b4", "#d62728"]
+# lmplot creates the scatter plot, colors by hue, and draws individual trend lines
+g = sns.lmplot(
+    data=FISelfReportData, x="AGE_NMBR_COM", y="FI_SelfReport", hue="SEX_ASK_COM", ci=None,
+    #palette=["red", "blue"],  # Changes both point and line colors per group
+    palette=journal_colors,
+    legend=False,  # We will place a cleaner manual legend
+    line_kws={"lw": 2.5, "linestyle": "-"},  # Clean, solid lines
+    height=5,
+    aspect=1.2,
+    #markers=["o", "s"],  # 'o' = circle for group 1, 's' = square for group 2
+    #scatter_kws={
+    #    "s": 80,  # Size of the scatter points
+    #    "alpha": 0.2,  # Transparency of points (0 = clear, 1 = solid)
+    #    "edgecolor": "none",  # Add a border around points
+    #},
+    scatter=False,
+    #line_kws={
+    #    "lw": 3,  # Line width/thickness of the trendlines
+    #    "linestyle": "--",  # Makes the trendlines dashed (use '-' for solid)
+    #},
+)
+
+# 4. Clean up the axes and labels
+ax = g.ax
+ax.set_xlabel("Age", fontsize=14, fontweight="bold")
+ax.set_ylabel("FI Self Report", fontsize=14, fontweight="bold")
+ax.set_title("FI Self Report Baseline", fontsize=16, pad=15)
+
+# Remove the top and right spines (borders) for a clean look
+sns.despine(trim=True)  # Trimmed spines look sharper in print
+
+# 5. Add a precise, clean legend inside the plot area
+ax.legend(
+    title="Categories",
+    title_fontsize=12,
+    fontsize=11,
+    loc="best",  # Automatically places it in the least crowded spot
+    frameon=True,
+    facecolor="white",
+    edgecolor="none",
+)
+
+plt.title("FI Self Report Baseline")
+plt.show()
+
+"""
