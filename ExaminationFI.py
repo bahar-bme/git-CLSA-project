@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import gc
 
 file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_Baseline_CoPv7.csv'
 # Define specific dtypes for columns to optimize memory
@@ -106,7 +106,7 @@ def stratified_scaling(df, target_col, group_col='SEX_ASK_COM', inverse=False):
         
         # Handle cases where all values in a group are identical (p95 == p05)
         if p95 == p05:
-            return group * 0 +0.5
+            return group * 0 + 0.5
         
         if inverse:
             # High raw values become 0, low raw values become 1
@@ -388,18 +388,44 @@ df.loc[df['hrg_right_2k_com'.upper()].isin([-8]),'hrg_right_2k_com'.upper()] = n
 columns_to_average = ['hrg_right_500_com'.upper(),'hrg_right_1k_com'.upper(),
                       'hrg_right_2k_com'.upper(),'hrg_right_4k_com'.upper()]
 
+# 1. Normalised using sex-stratified distributions
+tmpdf = df[columns_to_average].copy()
+print(tmpdf)
+tmpdf['SEX_ASK_COM'] = df['SEX_ASK_COM']
+tmpDF = pd.DataFrame()
+for col_name in columns_to_average:
+    tmpDF[col_name]=stratified_scaling(tmpdf, col_name, inverse = False)
+print(tmpdf)
+print(tmpDF)
+
 # 2. Calculate the average across the rows (axis=1)
-df['Pure_Tone_R'.upper()] = df[columns_to_average].mean(axis=1)
-DF['Pure_Tone_R'.upper()] = stratified_scaling(df, 'Pure_Tone_R'.upper() , inverse=True)
+DF['Pure_Tone_R'.upper()] = tmpDF[columns_to_average].mean(axis=1)
+#DF['Pure_Tone_R'.upper()] = stratified_scaling(df, 'Pure_Tone_R'.upper() , inverse=True)
+print(DF['Pure_Tone_R'.upper()])
 
 df.loc[df['hrg_left_1k_com'.upper()].isin([-8]),'hrg_left_1k_com'.upper()] = np.nan
 columns_to_average = ['hrg_left_500_com'.upper(),'hrg_left_1k_com'.upper(),
                       'hrg_left_2k_com'.upper(),'hrg_left_4k_com'.upper()]
 
-# 2. Calculate the average across the rows (axis=1)
+"""
+# average first then stratify and scale
 df['Pure_Tone_L'.upper()] = df[columns_to_average].mean(axis=1)
-DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=True)
+DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=False)
 print(DF)
+"""
+# 1. Normalised using sex-stratified distributions
+tmpdf = df[columns_to_average].copy()
+tmpdf['SEX_ASK_COM'] = df['SEX_ASK_COM']
+tmpDF = pd.DataFrame()
+for col_name in columns_to_average:
+    tmpDF[col_name]=stratified_scaling(tmpdf, col_name, inverse = False)
+
+# 2. Calculate the average across the rows (axis=1)
+DF['Pure_Tone_L'.upper()] = tmpDF[columns_to_average].mean(axis=1)
+#DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=False)
+print(tmpdf)
+print(tmpDF)
+gc.collect()
 
 RAWDF=DF
 IsEmpty = DF.isna() | (DF == "")
@@ -455,6 +481,20 @@ for col in DF.columns:
 # 4. Display all Seaborn plots at once
 plt.show()
 """
+
+
+""""""
+# plot one specific parameter vs age and output the prevalence
+AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
+excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
+
+for col in ['Pure_Tone_R'.upper(),'Pure_Tone_L'.upper()]:
+    if col not in excluded_cols:
+        prevalence(DF, col)
+
+# 4. Display all Seaborn plots at once
+plt.show()
+
 
 
 """
