@@ -96,7 +96,7 @@ DF["BLD_GR_PER_COM"] = (df["BLD_GR_PER_COM"]<45) | (df["BLD_GR_PER_COM"]>75)
 DF["BLD_Hct_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hct_COM']<0.41)|(df['BLD_Hct_COM']>0.53)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hct_COM']<0.36)|(df['BLD_Hct_COM']>0.46)))
 DF["BLD_LY_PER_COM"] = (df["BLD_LY_PER_COM"]<22) | (df["BLD_LY_PER_COM"]>44) 
 DF["BLD_MCH_COM"] = (df["BLD_MCH_COM"]<26) | (df["BLD_MCH_COM"]>34)
-DF["BLD_Hgb_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hgb_COM']<=13.5)|(df['BLD_Hgb_COM']>18)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hgb_COM']<=12)|(df['BLD_Hgb_COM']>16)))
+DF["BLD_Hgb_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hgb_COM']<=135)|(df['BLD_Hgb_COM']>180)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hgb_COM']<=120)|(df['BLD_Hgb_COM']>160)))
 DF["BLD_MO_PER_COM"] = (df["BLD_MO_PER_COM"]>8)
 DF["BLD_Plt_COM"] = (df["BLD_Plt_COM"]<150) | (df["BLD_Plt_COM"]>450)
 DF["BLD_MCV_COM"] = (df["BLD_MCV_COM"]<80) | (df["BLD_MCV_COM"]>96)
@@ -109,7 +109,7 @@ DF["BLD_HBA1c_COM"] = (df["BLD_HBA1c_COM"]<3.8) | (df["BLD_HBA1c_COM"]>6.4)
 df.loc[df['BLD_VITD_COM'].isin([-1111,-2222,-8888]),'BLD_VITD_COM'] = np.nan
 DF["BLD_VITD_COM"] = (df["BLD_VITD_COM"]<24.9) | (df["BLD_VITD_COM"]>169.5)
 df.loc[df['BLD_HSCRP_COM'].isin([-2222,-8888]),'BLD_HSCRP_COM'] = np.nan
-DF["BLD_HSCRP_COM"] = df["BLD_HSCRP_COM"]<8
+DF["BLD_HSCRP_COM"] = (df["BLD_HSCRP_COM"]<8) & (df["BLD_HSCRP_COM"]>0.1)
 df.loc[df['BLD_ALB_COM'].isin([-8888]),'BLD_ALB_COM'] = np.nan
 DF["BLD_ALB_COM"] = (df["BLD_ALB_COM"]<40) | (df["BLD_ALB_COM"]>60)
 #DF["BLD_EGFR_COM"] = df["BLD_EGFR_COM"]<60
@@ -162,14 +162,17 @@ FIBloodData.to_excel(output_file, index=False)
 
 DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
 DF['SEX_ASK_COM'] = df['SEX_ASK_COM']
-prevalence(DF, "BLD_Hgb_COM")
-GroupedPlot(DF,'BLD_Hgb_COM')
+prevalence(DF, "bld_hscrp_com".upper())
+GroupedPlot(DF,'bld_hscrp_com'.upper())
 prevalence(FIBloodData, "FI_blood")
 
 plt.figure()
 plt.scatter(FIBloodData['AGE_NMBR_COM'], FIBloodData['FI_blood'], color='blue', marker='o', alpha=0.8)
 
+plt.figure()
+plt.scatter(df['AGE_NMBR_COM'], df["bld_hscrp_com".upper()], color='green', marker='o', alpha=0.8)
 
+"""
 # plot each parameter vs age and output the prevalence
 
 AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
@@ -181,7 +184,7 @@ for col in DF.columns:
 
 # 4. Display all Seaborn plots at once
 plt.show()
-
+"""
 # Plot FI vs Age
 
 # Create your plot axis

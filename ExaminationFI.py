@@ -273,11 +273,11 @@ DF.loc[((df['hwt_dbmi_com'.upper()]>=25)&(df['hwt_dbmi_com'.upper()]<=29.9))  ,'
 DF.loc[((df['hwt_dbmi_com'.upper()]>=18.5)&(df['hwt_dbmi_com'.upper()]<=24.9)),'hwt_dbmi_com'.upper()] = 0
 
 DF['whc_ratio_com'.upper()] = ((df['SEX_ASK_COM']=='M')&(df['whc_ratio_com'.upper()]>0.9)) | ((df['SEX_ASK_COM']=='F')&(df['whc_ratio_com'.upper()]>0.85))
-DXA_WB_WBTOT_BMD_T_COM = (df['DXA_WB_WBTOT_BMD_COM']-df['DXA_WB_WBTOT_BMD_COM'].mean()) /df['DXA_WB_WBTOT_BMD_COM'].std()
-DF['DXA_WB_WBTOT_T_COM'] = np.nan
-DF.loc[(DXA_WB_WBTOT_BMD_T_COM<=-2.5),'DXA_WB_WBTOT_T_COM'] = 1
-DF.loc[((DXA_WB_WBTOT_BMD_T_COM>=-2.5)&(DXA_WB_WBTOT_BMD_T_COM<1)),'DXA_WB_WBTOT_T_COM'] = 0.5
-DF.loc[(DXA_WB_WBTOT_BMD_T_COM<=-1),'DXA_WB_WBTOT_T_COM'] = 0
+#DXA_WB_WBTOT_BMD_T_COM = (df['DXA_WB_WBTOT_BMD_COM']-df['DXA_WB_WBTOT_BMD_COM'].mean()) /df['DXA_WB_WBTOT_BMD_COM'].std()
+#DF['DXA_WB_WBTOT_T_COM'] = np.nan
+#DF.loc[(DXA_WB_WBTOT_BMD_T_COM<=-2.5),'DXA_WB_WBTOT_T_COM'] = 1
+#DF.loc[((DXA_WB_WBTOT_BMD_T_COM>=-2.5)&(DXA_WB_WBTOT_BMD_T_COM<1)),'DXA_WB_WBTOT_T_COM'] = 0.5
+#DF.loc[(DXA_WB_WBTOT_BMD_T_COM<=-1),'DXA_WB_WBTOT_T_COM'] = 0
 
 Osteoporosis =['dxa_wb_head_bmd_com'.upper(),'dxa_wb_larm_bmd_com'.upper(),
                'dxa_wb_rarm_bmd_com'.upper(),'dxa_wb_lrib_bmd_com'.upper(),
@@ -306,21 +306,21 @@ DF.loc[(Osteoporosis_T_Count>=2),'DXA_Osteoporosis_BMD_T']=1
 DF.loc[(Osteoporosis_T_Count==1),'DXA_Osteoporosis_BMD_T']=0.5
 DF.loc[(Osteoporosis_T_Count==0),'DXA_Osteoporosis_BMD_T']=0
 
-DF['DXA_OI_APDG_LEAN_MASS_H2_COM'] = stratified_scaling(df, 'DXA_OI_APDG_LEAN_MASS_H2_COM', inverse=True)
-DF['DXA_OI_TOTAL_PERCENT_FAT_COM'] = stratified_scaling(df, 'DXA_OI_TOTAL_PERCENT_FAT_COM', inverse=False)
-BodyFatAreas =['DXA_WBC_LARM_PFAT_COM','DXA_WBC_RARM_PFAT_COM','DXA_WBC_L_LEG_PFAT_COM',
-                   'DXA_WBC_R_LEG_PFAT_COM','DXA_WBC_TRUNK_PFAT_COM','DXA_WBC_HEAD_PFAT_COM']
-BodyFatAreas_Individual = df[BodyFatAreas]
-BodyFatAreas_P95 = BodyFatAreas_Individual.quantile(0.95)
-ExcessBodyFatArea=BodyFatAreas_Individual>=BodyFatAreas_P95
-ExcessBodyFatArea_Count=ExcessBodyFatArea.sum(axis=1)
-DF['AGGREGATE_BODY_FAT'] = np.nan
-DF.loc[(ExcessBodyFatArea_Count==0),'AGGREGATE_BODY_FAT']=0
-DF.loc[(ExcessBodyFatArea_Count==1),'AGGREGATE_BODY_FAT']=0.2
-DF.loc[(ExcessBodyFatArea_Count==2),'AGGREGATE_BODY_FAT']=0.4
-DF.loc[(ExcessBodyFatArea_Count==3),'AGGREGATE_BODY_FAT']=0.5
-DF.loc[(ExcessBodyFatArea_Count==4),'AGGREGATE_BODY_FAT']=0.8
-DF.loc[(ExcessBodyFatArea_Count>=5),'AGGREGATE_BODY_FAT']=1
+#DF['DXA_OI_APDG_LEAN_MASS_H2_COM'] = stratified_scaling(df, 'DXA_OI_APDG_LEAN_MASS_H2_COM', inverse=True)
+#DF['DXA_OI_TOTAL_PERCENT_FAT_COM'] = stratified_scaling(df, 'DXA_OI_TOTAL_PERCENT_FAT_COM', inverse=False)
+#BodyFatAreas =['DXA_WBC_LARM_PFAT_COM','DXA_WBC_RARM_PFAT_COM','DXA_WBC_L_LEG_PFAT_COM',
+#                   'DXA_WBC_R_LEG_PFAT_COM','DXA_WBC_TRUNK_PFAT_COM','DXA_WBC_HEAD_PFAT_COM']
+#BodyFatAreas_Individual = df[BodyFatAreas]
+#BodyFatAreas_P95 = BodyFatAreas_Individual.quantile(0.95)
+#ExcessBodyFatArea=BodyFatAreas_Individual>=BodyFatAreas_P95
+#ExcessBodyFatArea_Count=ExcessBodyFatArea.sum(axis=1)
+#DF['AGGREGATE_BODY_FAT'] = np.nan
+#DF.loc[(ExcessBodyFatArea_Count==0),'AGGREGATE_BODY_FAT']=0
+#DF.loc[(ExcessBodyFatArea_Count==1),'AGGREGATE_BODY_FAT']=0.2
+#DF.loc[(ExcessBodyFatArea_Count==2),'AGGREGATE_BODY_FAT']=0.4
+#DF.loc[(ExcessBodyFatArea_Count==3),'AGGREGATE_BODY_FAT']=0.5
+#DF.loc[(ExcessBodyFatArea_Count==4),'AGGREGATE_BODY_FAT']=0.8
+#DF.loc[(ExcessBodyFatArea_Count>=5),'AGGREGATE_BODY_FAT']=1
 
 # Domain 5: Spirometry measures
 FVC = ['spr_fvc_t1_com'.upper(),'spr_fvc_t2_com'.upper(),'spr_fvc_t3_com'.upper(),
@@ -355,15 +355,15 @@ FEV1 = ['SPR_FEV1_FVC_T1_COM','SPR_FEV1_FVC_T2_COM','SPR_FEV1_FVC_T3_COM',
 FEV1DF = df[FEV1]
 FEV1DF_VALID = FEV1DF.count(axis=1)
 
-df['FEV1_MAX'] = FEV1DF.max(axis=1, skipna=True)
-DF['FEV1_MAX'] = stratified_scaling(df, 'FEV1_MAX' , inverse=True)
-DF.loc[(FEV1DF_VALID<3) , 'FEV1_MAX'.upper()] = np.nan
+df['FEV1_FVC_MAX'] = FEV1DF.max(axis=1, skipna=True)
+DF['FEV1_FVC_MAX'] = stratified_scaling(df, 'FEV1_FVC_MAX' , inverse=True)
+DF.loc[(FEV1DF_VALID<3) , 'FEV1_FVC_MAX'.upper()] = np.nan
 
 # Domain 6: Hearing and vision
 df.loc[df['va_etdrs_l_rslt_com'.upper()].isin([-88.8]),'va_etdrs_l_rslt_com'.upper()] = np.nan
-DF['va_etdrs_l_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_l_rslt_com'.upper() , inverse=True)
+DF['va_etdrs_l_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_l_rslt_com'.upper() , inverse=False)
 df.loc[df['va_etdrs_r_rslt_com'.upper()].isin([-88.8]),'va_etdrs_r_rslt_com'.upper()] = np.nan
-DF['va_etdrs_r_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_r_rslt_com'.upper() , inverse=True)
+DF['va_etdrs_r_rslt_com'.upper()] = stratified_scaling(df, 'va_etdrs_r_rslt_com'.upper() , inverse=False)
 DF['ton_iopcc_r_com'.upper()] = (df['ton_iopcc_r_com'.upper()]<11) | (df['ton_iopcc_r_com'.upper()]>21)
 DF.loc[(df['ICQ_DERET3MO_COM']==1) | (df['ICQ_SRGYEYE_COM'].isin([1,2,3])), 'ton_iopcc_r_com'.upper()] = 1
 DF.loc[df['ICQ_EYEINF_COM'].isin([1,2,3]) , 'ton_iopcc_r_com'.upper()] = np.nan
@@ -469,7 +469,7 @@ DF['SEX_ASK_COM'] = df['SEX_ASK_COM']
 #plt.figure()
 #plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination'], color='blue', marker='o', alpha=0.8)
 
-"""
+
 # plot each parameter vs age and output the prevalence
 AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
 excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
@@ -477,24 +477,25 @@ excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
 for col in DF.columns:
     if col not in excluded_cols:
         prevalence(DF, col)
+        plt.ylim(-0.05,1.05)
+
 
 # 4. Display all Seaborn plots at once
 plt.show()
+
+
 """
-
-
-""""""
 # plot one specific parameter vs age and output the prevalence
 AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
 excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
 
-for col in ['Pure_Tone_R'.upper(),'Pure_Tone_L'.upper()]:
+for col in ['va_etdrs_l_rslt_com'.upper(),'va_etdrs_r_rslt_com'.upper()]:
     if col not in excluded_cols:
         prevalence(DF, col)
 
 # 4. Display all Seaborn plots at once
 plt.show()
-
+"""
 
 
 """
@@ -544,4 +545,3 @@ for category, color in zip(categories, colors):
 ax.legend(title="FI Examination Baseline")
 sns.despine(trim=True)
 plt.show()
-
