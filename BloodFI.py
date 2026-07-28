@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_Baseline_CoPv7.csv'
 # Define specific dtypes for columns to optimize memory
@@ -169,22 +170,25 @@ prevalence(FIBloodData, "FI_blood")
 plt.figure()
 plt.scatter(FIBloodData['AGE_NMBR_COM'], FIBloodData['FI_blood'], color='blue', marker='o', alpha=0.8)
 
-plt.figure()
-plt.scatter(df['AGE_NMBR_COM'], df["bld_hscrp_com".upper()], color='green', marker='o', alpha=0.8)
 
-"""
 # plot each parameter vs age and output the prevalence
 
 AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
 excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
-
+output_folder=Path(r"E:\CLSA\CLSA\results\FI Blood")
 for col in DF.columns:
     if col not in excluded_cols:
         prevalence(DF, col)
+        plt.ylim(-0.05,1.05)
+        file_path = os.path.join(output_folder, f"Baseline_{col}.png")
+        plt.savefig(file_path, dpi=300, bbox_inches='tight')
+        
+        # 4. Clear the memory to prevent freezing
+        plt.close()
 
 # 4. Display all Seaborn plots at once
 plt.show()
-"""
+
 # Plot FI vs Age
 
 # Create your plot axis

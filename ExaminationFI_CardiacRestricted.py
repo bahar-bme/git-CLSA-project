@@ -123,7 +123,7 @@ def stratified_scaling(df, target_col, group_col='SEX_ASK_COM', inverse=False):
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 #print(ColumnNames)
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
-FIExaminationCount = 40 #47
+FIExaminationCount = 40-12 #47
 DF = pd.DataFrame()
 
 required_columns =['AGE_NMBR_COM',
@@ -245,7 +245,7 @@ df['Stroop_Test_Interference_Time'] = df['stp_dottime_ss_com'.upper()]-df['stp_c
 strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','STP_STARTLANG_COM']
 DF['Stroop_Test_Interference_Time'] = stratified_scaling(df, target_col='Stroop_Test_Interference_Time',
                                                        group_col=strat_list, inverse=True)                                                       
-# Domain 3: Cardiac
+"""# Domain 3: Cardiac
 DF["bp_systolic_avg_com".upper()]  = (df["bp_systolic_avg_com".upper()]<90) | (df["bp_systolic_avg_com".upper()]>140)    
 DF["bp_diastolic_avg_com".upper()] = (df["bp_diastolic_avg_com".upper()]<=60)
 df["pulse_pressure".upper()]       = df['bp_systolic_avg_com'.upper()]-df['bp_diastolic_avg_com'.upper()]
@@ -266,6 +266,7 @@ DF['ecg_p_axis_com'.upper()] = (df['ecg_p_axis_com'.upper()]<0) | (df['ecg_p_axi
 DF['ecg_r_axis_com'.upper()] = (df['ecg_r_axis_com'.upper()]<-30) | (df['ecg_r_axis_com'.upper()]>90)
 DF['ecg_t_axis_com'.upper()] = (df['ecg_t_axis_com'.upper()]<0) | (df['ecg_t_axis_com'.upper()]>90)
 DF['ecg_p_duration_com'.upper()] = df['ecg_p_duration_com'.upper()]>120
+"""
 # Domain 4: Anthropometric measures
 df.loc[df['hwt_dbmi_com'.upper()].isin([999.96, 999.99]),'hwt_dbmi_com.upper()'] = np.nan
 DF['hwt_dbmi_com'.upper()] = np.nan
@@ -470,7 +471,7 @@ prevalence(FIExaminationData, "FI_Examination")
 plt.figure()
 plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination'], color='blue', marker='o', alpha=0.8)
 
-
+"""
 # plot each parameter vs age and output the prevalence
 AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
 excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
@@ -487,7 +488,7 @@ for col in DF.columns:
 
 # 4. Display all Seaborn plots at once
 plt.show()
-
+"""
 
 """
 # plot one specific parameter vs age and output the prevalence

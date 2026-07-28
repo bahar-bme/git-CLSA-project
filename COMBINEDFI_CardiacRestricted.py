@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May  3 21:06:49 2026
+#FI COMBINED
 
-@author: mmogh
-"""
-"FI-EXAMINATION"  
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import StandardScaler
 import gc
+from pathlib import Path
 import os
 
 file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_Baseline_CoPv7.csv'
@@ -19,6 +15,7 @@ file_path = 'E:/CLSA/CLSA/data/2310011_UCalgary_RRose_BL/2310011_UCalgary_RRose_
 #     'MEDI_DOSE_FRQ_1_COF1': 'int8',
     
 # }
+
 def prevalence(df, target_col):
     """Plots a chosen target column against age."""
     prevalence = df[target_col].mean()
@@ -60,39 +57,6 @@ def GroupedPlot(df, target_col):
         sns.despine(trim=True)
 
 
-
-
-
-"""
-def stratify_normalize(df, target_col, group_col='SEX_ASK_COM'):
-
-    #Applies sex-stratified normalization (Z-score) to a specific column.
-    #Returns a Series of normalized values.
-
-    # Calculate group-specific mean and std for the chosen column
-    means = df.groupby(group_col)[target_col].transform('mean')
-    stds = df.groupby(group_col)[target_col].transform('std')
-    
-    # Return the normalized column
-    return (df[target_col] - means) / stds
-
-
-# sex-stratified function:
-def rescale_by_percentile(df, target_col, group_col='SEX_ASK_COM'):
-    def apply_rescale(group):
-        # Calculate the specific percentile thresholds
-        p05 = group.quantile(0.005)
-        p995 = group.quantile(0.995)
-        
-        # Apply the formula
-        rescaled = (group - p05) / (p995 - p05)
-        return rescaled.clip(0,1)
-    # Use transform to apply this logic per group to the target column
-    return df.groupby(group_col)[target_col].transform(apply_rescale)
-
-"""
-
-
 def stratified_scaling(df, target_col, group_col='SEX_ASK_COM', inverse=False):
     """
     Sex-stratified scaling between 0.5th and 95th percentiles.
@@ -123,12 +87,21 @@ def stratified_scaling(df, target_col, group_col='SEX_ASK_COM', inverse=False):
 ColumnNames = pd.read_csv(file_path, nrows=0).columns.tolist()
 #print(ColumnNames)
 # df = pd.read_csv(file_path, dtype=optimized_dtypes)
-FIExaminationCount = 40 #47
+FIBloodCount = 22
+FIExaminationCount = 40-12 #47
+FISelfRedportCount = 51
+
 DF = pd.DataFrame()
 
-required_columns =['AGE_NMBR_COM',
-                   'SEX_ASK_COM', 'ED_HIGH_COM', 
-                   'wlk_time_com','cr_avg_time_com',
+required_columns =['AGE_NMBR_COM','SEX_ASK_COM', 'ED_HIGH_COM',
+                   'BLD_GR_PER_COM','BLD_Hct_COM',
+                   'BLD_LY_PER_COM','BLD_MCH_COM','BLD_Hgb_COM','BLD_MO_PER_COM',
+                   'BLD_Plt_COM','BLD_MCV_COM','BLD_RBC_COM','BLD_WBC_COM',
+                   'BLD_RDW_COM','BLD_MPV_COM','BLD_HBA1c_COM','BLD_VITD_COM',
+                   'BLD_HSCRP_COM','BLD_ALB_COM','BLD_TSH_COM',
+                   'BLD_CREAT_COM','BLD_FT4_COM','BLD_FERR_COM','BLD_CHOL_COM',
+                   'BLD_TRIG_COM']
+required_columns2 =['wlk_time_com','cr_avg_time_com',
                    'tug_time_com','gs_exam_max_com','bal_best_com',
                    'cog_reyi_score_com','COG_REYI_STARTLANG_COM','COG_REYI_LANG_COM',
                    'cog_reyii_score_com','COG_REYII_STARTLANG_COM','COG_REYII_LANG_COM',
@@ -163,27 +136,66 @@ required_columns =['AGE_NMBR_COM',
                    'hrg_left_500_com','hrg_left_1k_com','hrg_left_2k_com','hrg_left_4k_com',
                    'ICQ_HRTCOND_COM','ICQ_SRGYHRT_COM','ICQ_SRGYCHT_COM','ICQ_BLDSP3MO_COM',
                    'ICQ_ANEURY_COM','ICQ_EMB6WK_COM','ICQ_EMBMED_COM','ICQ_NGTUBE_COM',
-                   'ICQ_DERET3MO_COM','ICQ_SRGYEYE_COM','ICQ_EYEINF_COM']
-
-
-#'imt_r_avg_com','imt_l_avg_com'
-#'dxa_wb_wbtot_t_com'
-required_columns = [f.upper() for f in required_columns]
-required_columns.insert(0,'entity_id')
-
-
+                   'ICQ_DERET3MO_COM','ICQ_SRGYEYE_COM','ICQ_EYEINF_COM'
+                   ]
+required_columns3=['GEN_HLTH_COM','VIS_SGHT_COM','HRG_HRG_COM',
+                   'CCC_OAKNEE_COM','CCC_OAHAND_COM','CCC_OAHIP_COM',
+                   'CCC_RA_COM','CCC_COPD_COM','CCC_HBP_COM','DIA_DIAB_COM',
+                   'CCC_HEART_COM','CCC_ANGI_COM','CCC_AMI_COM','CCC_PVD_COM',
+                   'CCC_TIA_COM','CCC_CVA_COM','CCC_MEMPB_COM','CCC_ALZH_COM',
+                   'CCC_PARK_COM','CCC_ULCR_COM','CCC_IBDIBS_COM','CCC_BOWINC_COM',
+                   'ADL_INCNT_COM','ICQ_CATRCT_COM','ICQ_GLAUC_COM','CCC_MACDEG_COM',
+                   'CCC_OSTPO_COM','CCC_CANC_COM','CCC_BCKP_COM','CCC_UTHYR_COM',
+                   'CCC_OTHYR_COM','CCC_KIDN_COM','CCC_DRPNEU_COM','CCC_DRUTI_COM',
+                   'FAL_NMBR_NB_COM','ADL_ABLDR_COM','ADL_ABLAP_COM','ADL_ABLWK_COM',
+                   'ADL_ABLBD_COM','ADL_ABLBT_COM','IAL_ABLTEL_COM','IAL_ABLTRV_COM',
+                   'IAL_ABLGRO_COM','IAL_ABLML_COM','IAL_ABLWRK_COM','IAL_ABLMED_COM',
+                   'IAL_ABLMO_COM','COG_AFT_SCORE_1_COM','COG_AFT_SCORE_2_COM',
+                   'COG_REYI_SCORE_COM','COG_REYII_SCORE_COM','DEP_FFRT_COM','DEP_LONLY_COM',
+                   'DEP_GTGO_COM']
+required_columns2 = [f.upper() for f in required_columns2]
+required_columns = ['entity_id']+required_columns+required_columns2+required_columns3
+print(required_columns)
 df = pd.read_csv(file_path, usecols=required_columns)
-""""
-IsEmpty = df.isna() | (df == "")
-DataNA = IsEmpty.sum(axis=1)
-RowsToDrop = DataNA.index[DataNA>FIExamination*0.2]
-df.drop(RowsToDrop, inplace=True)
-IsEmpty = df.isna() | (df == "")
-DataNA = IsEmpty.sum(axis=1)
-NotEmpty = ~IsEmpty
-DataAvailable = NotEmpty.sum(axis=1)-3
-"""
+df = df.replace([-1111,-2222,-8888],np.nan)
 
+# FI BLOOD:::::>>
+DF["BLD_GR_PER_COM"] = (df["BLD_GR_PER_COM"]<45) | (df["BLD_GR_PER_COM"]>75)    
+DF["BLD_Hct_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hct_COM']<0.41)|(df['BLD_Hct_COM']>0.53)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hct_COM']<0.36)|(df['BLD_Hct_COM']>0.46)))
+DF["BLD_LY_PER_COM"] = (df["BLD_LY_PER_COM"]<22) | (df["BLD_LY_PER_COM"]>44) 
+DF["BLD_MCH_COM"] = (df["BLD_MCH_COM"]<26) | (df["BLD_MCH_COM"]>34)
+DF["BLD_Hgb_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_Hgb_COM']<=135)|(df['BLD_Hgb_COM']>180)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_Hgb_COM']<=120)|(df['BLD_Hgb_COM']>160)))
+DF["BLD_MO_PER_COM"] = (df["BLD_MO_PER_COM"]>8)
+DF["BLD_Plt_COM"] = (df["BLD_Plt_COM"]<150) | (df["BLD_Plt_COM"]>450)
+DF["BLD_MCV_COM"] = (df["BLD_MCV_COM"]<80) | (df["BLD_MCV_COM"]>96)
+DF["BLD_RBC_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_RBC_COM']<4.5)|(df['BLD_RBC_COM']>5.9)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_RBC_COM']<4)|(df['BLD_RBC_COM']>5.2)))
+DF["BLD_WBC_COM"] = (df["BLD_WBC_COM"]<1.8) | (df["BLD_WBC_COM"]>7.8)
+DF["BLD_RDW_COM"] = df["BLD_RDW_COM"]>14.6
+DF["BLD_MPV_COM"] = (df["BLD_MPV_COM"]<7) | (df["BLD_MPV_COM"]>13)
+df.loc[df['BLD_HBA1c_COM'].isin([-2222,-8888]),'BLD_HBA1c_COM'] = np.nan
+DF["BLD_HBA1c_COM"] = (df["BLD_HBA1c_COM"]<3.8) | (df["BLD_HBA1c_COM"]>6.4)
+df.loc[df['BLD_VITD_COM'].isin([-1111,-2222,-8888]),'BLD_VITD_COM'] = np.nan
+DF["BLD_VITD_COM"] = (df["BLD_VITD_COM"]<24.9) | (df["BLD_VITD_COM"]>169.5)
+df.loc[df['BLD_HSCRP_COM'].isin([-2222,-8888]),'BLD_HSCRP_COM'] = np.nan
+DF["BLD_HSCRP_COM"] = (df["BLD_HSCRP_COM"]<8) & (df["BLD_HSCRP_COM"]>0.1)
+df.loc[df['BLD_ALB_COM'].isin([-8888]),'BLD_ALB_COM'] = np.nan
+DF["BLD_ALB_COM"] = (df["BLD_ALB_COM"]<40) | (df["BLD_ALB_COM"]>60)
+#DF["BLD_EGFR_COM"] = df["BLD_EGFR_COM"]<60
+df.loc[df['BLD_TSH_COM'].isin([-2222,-8888]),'BLD_TSH_COM'] =np.nan
+DF["BLD_TSH_COM"] = (df["BLD_TSH_COM"]<0.5) | (df["BLD_TSH_COM"]>5)
+df.loc[df['BLD_CREAT_COM'].isin([-8888]),'BLD_CREAT_COM'] = np.nan
+DF["BLD_CREAT_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_CREAT_COM']<60)|(df['BLD_CREAT_COM']>110)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_CREAT_COM']<45)|(df['BLD_CREAT_COM']>90)))
+df.loc[df['BLD_FT4_COM'].isin([-1111,-2222,-8888]),'BLD_FT4_COM'] = np.nan
+DF["BLD_FT4_COM"] = df["BLD_FT4_COM"]>23.2
+df.loc[df['BLD_FERR_COM'].isin([-1111,-2222,-8888]),'BLD_FERR_COM'] = np.nan
+DF["BLD_FERR_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_FERR_COM']<20)|(df['BLD_FERR_COM']>250)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_FERR_COM']<10)|(df['BLD_FERR_COM']>120)))
+df.loc[df['BLD_CHOL_COM'].isin([-8888]),'BLD_CHOL_COM'] = np.nan
+DF["BLD_CHOL_COM"] = (df["BLD_CHOL_COM"]<3.9) | (df["BLD_CHOL_COM"]>6.5)
+df.loc[df['BLD_TRIG_COM'].isin([-8888]),'BLD_TRIG_COM'] = np.nan
+DF["BLD_TRIG_COM"] = ((df["SEX_ASK_COM"]=="M")&((df['BLD_TRIG_COM']<0.45)|(df['BLD_TRIG_COM']>1.81)))|((df["SEX_ASK_COM"]=='F')&((df['BLD_TRIG_COM']<0.36)|(df['BLD_TRIG_COM']>1.12)))
+
+
+# FI EXAMINATION:::::>>
 # Domain 1: Physical Performance
 df.loc[df['wlk_time_com'.upper()].isin([-88]),'wlk_time_com'.upper()] = np.nan
 DF['wlk_time_com'.upper()] = stratified_scaling(df, 'wlk_time_com'.upper() , inverse=False)
@@ -245,7 +257,7 @@ df['Stroop_Test_Interference_Time'] = df['stp_dottime_ss_com'.upper()]-df['stp_c
 strat_list = ['SEX_ASK_COM', 'ED_HIGH_COM','STP_STARTLANG_COM']
 DF['Stroop_Test_Interference_Time'] = stratified_scaling(df, target_col='Stroop_Test_Interference_Time',
                                                        group_col=strat_list, inverse=True)                                                       
-# Domain 3: Cardiac
+"""# Domain 3: Cardiac
 DF["bp_systolic_avg_com".upper()]  = (df["bp_systolic_avg_com".upper()]<90) | (df["bp_systolic_avg_com".upper()]>140)    
 DF["bp_diastolic_avg_com".upper()] = (df["bp_diastolic_avg_com".upper()]<=60)
 df["pulse_pressure".upper()]       = df['bp_systolic_avg_com'.upper()]-df['bp_diastolic_avg_com'.upper()]
@@ -266,6 +278,7 @@ DF['ecg_p_axis_com'.upper()] = (df['ecg_p_axis_com'.upper()]<0) | (df['ecg_p_axi
 DF['ecg_r_axis_com'.upper()] = (df['ecg_r_axis_com'.upper()]<-30) | (df['ecg_r_axis_com'.upper()]>90)
 DF['ecg_t_axis_com'.upper()] = (df['ecg_t_axis_com'.upper()]<0) | (df['ecg_t_axis_com'.upper()]>90)
 DF['ecg_p_duration_com'.upper()] = df['ecg_p_duration_com'.upper()]>120
+"""
 # Domain 4: Anthropometric measures
 df.loc[df['hwt_dbmi_com'.upper()].isin([999.96, 999.99]),'hwt_dbmi_com.upper()'] = np.nan
 DF['hwt_dbmi_com'.upper()] = np.nan
@@ -391,18 +404,14 @@ columns_to_average = ['hrg_right_500_com'.upper(),'hrg_right_1k_com'.upper(),
 
 # 1. Normalised using sex-stratified distributions
 tmpdf = df[columns_to_average].copy()
-print(tmpdf)
 tmpdf['SEX_ASK_COM'] = df['SEX_ASK_COM']
 tmpDF = pd.DataFrame()
 for col_name in columns_to_average:
     tmpDF[col_name]=stratified_scaling(tmpdf, col_name, inverse = False)
-print(tmpdf)
-print(tmpDF)
 
 # 2. Calculate the average across the rows (axis=1)
 DF['Pure_Tone_R'.upper()] = tmpDF[columns_to_average].mean(axis=1)
 #DF['Pure_Tone_R'.upper()] = stratified_scaling(df, 'Pure_Tone_R'.upper() , inverse=True)
-print(DF['Pure_Tone_R'.upper()])
 
 df.loc[df['hrg_left_1k_com'.upper()].isin([-8]),'hrg_left_1k_com'.upper()] = np.nan
 columns_to_average = ['hrg_left_500_com'.upper(),'hrg_left_1k_com'.upper(),
@@ -424,57 +433,272 @@ for col_name in columns_to_average:
 # 2. Calculate the average across the rows (axis=1)
 DF['Pure_Tone_L'.upper()] = tmpDF[columns_to_average].mean(axis=1)
 #DF['Pure_Tone_L'.upper()] = stratified_scaling(df, 'Pure_Tone_L'.upper() , inverse=False)
-print(tmpdf)
-print(tmpDF)
 gc.collect()
 
+#FI SELFREPORT::::>>>>>>
+#df["GEN_HLTH_COM"].loc[df["GEN_HLTH_COM"]==8] = np.nan
+#df["GEN_HLTH_COM"].loc[df["GEN_HLTH_COM"]==9] = np.nan
+df.loc[df['GEN_HLTH_COM'].isin([8,9]),'GEN_HLTH_COM'] = np.nan
+DF['Health'] = (df['GEN_HLTH_COM']-1)/4
+
+#df["VIS_SGHT_COM"].loc[df["VIS_SGHT_COM"]==8] = np.nan
+#df["VIS_SGHT_COM"].loc[df["VIS_SGHT_COM"]==9] = np.nan
+df.loc[df['VIS_SGHT_COM'].isin([8,9]),'VIS_SGHT_COM'] = np.nan
+DF['Vision'] = (df['VIS_SGHT_COM']-1)/4
+
+#df["HRG_HRG_COM"].loc[(df["HRG_HRG_COM"]==8)|(df["HRG_HRG_COM"]==9)] = np.nan
+df.loc[df['HRG_HRG_COM'].isin([8,9]),'HRG_HRG_COM'] = np.nan
+DF['Hearing'] = (df['HRG_HRG_COM']-1)/4
+
+#df["CCC_OAKNEE_COM"].loc[(df["CCC_OAKNEE_COM"]==8)|(df["CCC_OAKNEE_COM"]==9)] = np.nan
+#df["CCC_OAHAND_COM"].loc[(df["CCC_OAHAND_COM"]==8)|(df["CCC_OAHAND_COM"]==9)] = np.nan
+#df["CCC_OAHIP_COM"] .loc[(df["CCC_OAHIP_COM"] ==8)|(df["CCC_OAHIP_COM"] ==9)] = np.nan
+
+df.loc[~df['CCC_OAKNEE_COM'].isin([1,2]),'CCC_OAKNEE_COM'] = np.nan
+df.loc[~df['CCC_OAHAND_COM'].isin([1,2]),'CCC_OAHAND_COM'] = np.nan
+df.loc[~df['CCC_OAHIP_COM'].isin([1,2]),'CCC_OAHIP_COM']   = np.nan
+
+df['CCC_OAKNEE_COM']=2-df['CCC_OAKNEE_COM']
+df['CCC_OAHAND_COM']=2-df['CCC_OAHAND_COM']
+df['CCC_OAHIP_COM']=2-df['CCC_OAHIP_COM']
+df['Osteoarthritis'] = df[['CCC_OAKNEE_COM','CCC_OAHAND_COM','CCC_OAHIP_COM']].sum(axis=1 , min_count=1)
+DF['Osteoarthritis'] = df['Osteoarthritis'].gt(0).astype(int)
+
+#df["CCC_RA_COM"] .loc[(df["CCC_RA_COM"] ==8)|(df["CCC_RA_COM"] ==9)] = np.nan
+df.loc[~df['CCC_RA_COM'].isin([1,2]),'CCC_RA_COM'] = np.nan
+DF['Arthritis']=2-df['CCC_RA_COM']
+
+#df["DIA_DIAB_COM"] .loc[(df["DIA_DIAB_COM"] ==8)|(df["DIA_DIAB_COM"] ==9)] = np.nan
+df.loc[~df['DIA_DIAB_COM'].isin([1,2]),'DIA_DIAB_COM'] = np.nan
+DF['Diabetes_mellitus']=2-df['DIA_DIAB_COM']
+
+"""
+# Cardiovascular
+#df["CCC_COPD_COM"] .loc[(df["CCC_COPD_COM"] ==8)|(df["CCC_COPD_COM"] ==9)] = np.nan
+df.loc[~df['CCC_COPD_COM'].isin([1,2]),'CCC_COPD_COM'] = np.nan
+DF['Chronic_obstructive_pulmonary_disease']=2-df['CCC_COPD_COM']
+
+#df["CCC_HBP_COM"] .loc[(df["CCC_HBP_COM"] ==8)|(df["CCC_HBP_COM"] ==9)] = np.nan
+df.loc[~df['CCC_HBP_COM'].isin([1,2]),'CCC_HBP_COM'] = np.nan
+DF['High_blood_pressure']=2-df['CCC_HBP_COM']
+
+#df["CCC_HEART_COM"] .loc[(df["CCC_HEART_COM"] ==8)|(df["CCC_HEART_COM"] ==9)] = np.nan
+df.loc[~df['CCC_HEART_COM'].isin([1,2]),'CCC_HEART_COM'] = np.nan
+DF['Chronic_heart_failure']=2-df['CCC_HEART_COM']
+
+#df["CCC_ANGI_COM"] .loc[(df["CCC_ANGI_COM"] ==8)|(df["CCC_ANGI_COM"] ==9)] = np.nan
+df.loc[df['CCC_ANGI_COM'].isin([1,2]),'CCC_ANGI_COM'] = np.nan
+DF['Angina']=2-df['CCC_ANGI_COM']
+
+#df["CCC_AMI_COM"] .loc[(df["CCC_AMI_COM"] ==8)|(df["CCC_AMI_COM"] ==9)] = np.nan
+df.loc[~df['CCC_AMI_COM'].isin([1,2]),'CCC_AMI_COM'] = np.nan
+DF['Acute_myocardial_infarction']=2-df['CCC_AMI_COM']
+
+#df["CCC_PVD_COM"] .loc[(df["CCC_PVD_COM"] ==8)|(df["CCC_PVD_COM"] ==9)] = np.nan
+df.loc[~df['CCC_PVD_COM'].isin([1,2]),'CCC_PVD_COM'] = np.nan
+DF['Peripheral_vascular_disease']=2-df['CCC_PVD_COM']
+
+#df["CCC_CVA_COM"] .loc[(df["CCC_CVA_COM"] ==8)|(df["CCC_CVA_COM"] ==9)] = np.nan
+df.loc[~df['CCC_CVA_COM'].isin([1,2]),'CCC_CVA_COM'] = np.nan
+DF['Stroke']=2-df['CCC_CVA_COM']
+"""
+
+#df["CCC_TIA_COM"] .loc[(df["CCC_TIA_COM"] ==8)|(df["CCC_TIA_COM"] ==9)] = np.nan
+df.loc[~df['CCC_TIA_COM'].isin([1,2]),'CCC_TIA_COM'] = np.nan
+DF['Transient_ischemic_attack']=2-df['CCC_TIA_COM']
+
+#Brain
+
+#df["CCC_MEMPB_COM"] .loc[(df["CCC_MEMPB_COM"] ==8)|(df["CCC_MEMPB_COM"] ==9)] = np.nan
+df.loc[~df['CCC_MEMPB_COM'].isin([1,2]),'CCC_MEMPB_COM'] = np.nan
+DF['Memory_problem']=2-df['CCC_MEMPB_COM']
+
+#df["CCC_ALZH_COM"] .loc[(df["CCC_ALZH_COM"] ==8)|(df["CCC_ALZH_COM"] ==9)] = np.nan
+df.loc[~df['CCC_ALZH_COM'].isin([1,2]),'CCC_ALZH_COM'] = np.nan
+DF['Alzheimer_disease']=2-df['CCC_ALZH_COM']
+
+#df["CCC_PARK_COM"] .loc[(df["CCC_PARK_COM"] ==8)|(df["CCC_PARK_COM"] ==9)] = np.nan
+df.loc[~df['CCC_PARK_COM'].isin([1,2]),'CCC_PARK_COM'] = np.nan
+DF['Parkinson_disease']=2-df['CCC_PARK_COM']
+
+#Gatrointestin
+#df["CCC_ULCR_COM"] .loc[(df["CCC_ULCR_COM"] ==8)|(df["CCC_ULCR_COM"] ==9)] = np.nan
+df.loc[~df['CCC_ULCR_COM'].isin([1,2]),'CCC_ULCR_COM'] = np.nan
+DF['Peptic_ulcer_diseae']=2-df['CCC_ULCR_COM']
+
+#df["CCC_IBDIBS_COM"] .loc[(df["CCC_IBDIBS_COM"] ==8)|(df["CCC_IBDIBS_COM"] ==9)] = np.nan
+df.loc[~df['CCC_IBDIBS_COM'].isin([1,2]),'CCC_IBDIBS_COM'] = np.nan
+DF['Colitis']=2-df['CCC_IBDIBS_COM']
+
+#df["CCC_BOWINC_COM"] .loc[(df["CCC_BOWINC_COM"] ==8)|(df["CCC_BOWINC_COM"] ==9)] = np.nan
+df.loc[~df['CCC_BOWINC_COM'].isin([1,2]),'CCC_BOWINC_COM'] = np.nan
+DF['Bowel_incontinence']=2-df['CCC_BOWINC_COM']
+
+#df["ADL_INCNT_COM"].loc[(df["ADL_INCNT_COM"]==8)|(df["ADL_INCNT_COM"]==9)] = np.nan
+df.loc[df['ADL_INCNT_COM'].isin([8,9]),'ADL_INCNT_COM'] = np.nan
+DF['Urinary_incontinence'] = (df['ADL_INCNT_COM']-1)/2
+
+#vision
+#df["ICQ_CATRCT_COM"] .loc[(df["ICQ_CATRCT_COM"] ==8)|(df["ICQ_CATRCT_COM"] ==9)] = np.nan
+df.loc[~df['ICQ_CATRCT_COM'].isin([1,2]),'ICQ_CATRCT_COM'] = np.nan
+DF['Cataract']=2-df['ICQ_CATRCT_COM']
+
+#df["ICQ_GLAUC_COM"] .loc[(df["ICQ_GLAUC_COM"] ==8)|(df["ICQ_GLAUC_COM"] ==9)] = np.nan
+df.loc[~df['ICQ_GLAUC_COM'].isin([1,2]),'ICQ_GLAUC_COM'] = np.nan
+DF['Glaucoma']=2-df['ICQ_GLAUC_COM']
+
+#df["CCC_MACDEG_COM"] .loc[(df["CCC_MACDEG_COM"] ==8)|(df["CCC_MACDEG_COM"] ==9)] = np.nan
+df.loc[~df['CCC_MACDEG_COM'].isin([1,2]),'CCC_MACDEG_COM'] = np.nan
+DF['Macular_degeneration']=2-df['CCC_MACDEG_COM']
+
+#Cancer
+#df["CCC_CANC_COM"] .loc[(df["CCC_CANC_COM"] ==8)|(df["CCC_CANC_COM"] ==9)] = np.nan
+df.loc[~df['CCC_CANC_COM'].isin([1,2]),'CCC_CANC_COM'] = np.nan
+DF['Cancer']=2-df['CCC_CANC_COM']
+
+#Orthopedic
+#df["CCC_OSTPO_COM"] .loc[(df["CCC_OSTPO_COM"] ==8)|(df["CCC_OSTPO_COM"] ==9)] = np.nan
+df.loc[~df['CCC_OSTPO_COM'].isin([1,2]),'CCC_OSTPO_COM'] = np.nan
+DF['Osteoporosis']=2-df['CCC_OSTPO_COM']
+
+#df["CCC_BCKP_COM"] .loc[(df["CCC_BCKP_COM"] ==8)|(df["CCC_BCKP_COM"] ==9)] = np.nan
+df.loc[~df['CCC_BCKP_COM'].isin([1,2]),'CCC_BCKP_COM'] = np.nan
+DF['Back_pain']=2-df['CCC_BCKP_COM']
+
+#Internal
+#df["CCC_UTHYR_COM"] .loc[(df["CCC_UTHYR_COM"] ==8)|(df["CCC_UTHYR_COM"] ==9)] = np.nan
+df.loc[~df['CCC_UTHYR_COM'].isin([1,2]),'CCC_UTHYR_COM'] = np.nan
+DF['Hypothyroidism']=2-df['CCC_UTHYR_COM']
+
+#df["CCC_OTHYR_COM"] .loc[(df["CCC_OTHYR_COM"] ==8)|(df["CCC_OTHYR_COM"] ==9)] = np.nan
+df.loc[~df['CCC_OTHYR_COM'].isin([1,2]),'CCC_OTHYR_COM'] = np.nan
+DF['Hyperthyroidism']=2-df['CCC_OTHYR_COM']
+
+#df["CCC_KIDN_COM"] .loc[(df["CCC_KIDN_COM"] ==8)|(df["CCC_KIDN_COM"] ==9)] = np.nan
+df.loc[~df['CCC_KIDN_COM'].isin([1,2]),'CCC_KIDN_COM'] = np.nan
+DF['Kidney_failure']=2-df['CCC_KIDN_COM']
+
+#df["CCC_DRPNEU_COM"] .loc[(df["CCC_DRPNEU_COM"] ==8)|(df["CCC_DRPNEU_COM"] ==9)] = np.nan
+df.loc[~df['CCC_DRPNEU_COM'].isin([1,2]),'CCC_DRPNEU_COM'] = np.nan
+DF['Pneumonia']=2-df['CCC_DRPNEU_COM']
+
+#df["CCC_DRUTI_COM"] .loc[(df["CCC_DRUTI_COM"] ==8)|(df["CCC_DRUTI_COM"] ==9)] = np.nan
+df.loc[~df['CCC_DRUTI_COM'].isin([1,2]),'CCC_DRUTI_COM'] = np.nan
+DF['Urinary_tract_infection']=2-df['CCC_DRUTI_COM']
+
+#ADL
+df.loc[df["FAL_NMBR_NB_COM"].isin([89, 99]), "FAL_NMBR_NB_COM"] = np.nan
+#df["FAL_NMBR_NB_COM"].loc[(df["FAL_NMBR_NB_COM"]==98)|(df["FAL_NMBR_NB_COM"]==99)] = np.nan
+MaxFall = df['FAL_NMBR_NB_COM'].max()
+DF['Falls'] = (df['FAL_NMBR_NB_COM'])/MaxFall
+
+df.loc[~df['ADL_ABLDR_COM'].isin([1,2]),'ADL_ABLDR_COM'] = np.nan
+DF['Dressing'] = df['ADL_ABLDR_COM']-1
+
+df.loc[~df['ADL_ABLAP_COM'].isin([1,2]),'ADL_ABLAP_COM'] = np.nan
+DF['Grooming'] = df['ADL_ABLAP_COM']-1
+
+df.loc[~df['ADL_ABLWK_COM'].isin([1,2]),'ADL_ABLWK_COM'] = np.nan
+DF['Walking'] = df['ADL_ABLWK_COM']-1
+
+df.loc[~df['ADL_ABLBD_COM'].isin([1,2]),'ADL_ABLBD_COM'] = np.nan
+DF['Getting_in_out_bed'] = df['ADL_ABLBD_COM']-1
+
+df.loc[~df['ADL_ABLBT_COM'].isin([1,2]),'ADL_ABLBT_COM'] = np.nan
+DF['Bathing'] = df['ADL_ABLBT_COM']-1
+
+df.loc[~df['IAL_ABLTEL_COM'].isin([1,2]),'IAL_ABLTEL_COM'] = np.nan
+DF['Phone'] = df['IAL_ABLTEL_COM']-1
+
+df.loc[~df['IAL_ABLTRV_COM'].isin([1,2]),'IAL_ABLTRV_COM'] = np.nan
+DF['Transport'] = df['IAL_ABLTRV_COM']-1
+
+df.loc[~df['IAL_ABLGRO_COM'].isin([1,2]),'IAL_ABLGRO_COM'] = np.nan
+DF['Shopping'] = df['IAL_ABLGRO_COM']-1
+
+df.loc[~df['IAL_ABLML_COM'].isin([1,2]),'IAL_ABLML_COM'] = np.nan
+DF['Cooking'] = df['IAL_ABLML_COM'] -1
+
+df.loc[~df['IAL_ABLWRK_COM'].isin([1,2]),'IAL_ABLWRK_COM'] = np.nan
+DF['Housework'] = df['IAL_ABLWRK_COM']-1
+
+df.loc[~df['IAL_ABLMED_COM'].isin([1,2]),'IAL_ABLMED_COM'] = np.nan
+DF['Medicine'] = df['IAL_ABLMED_COM'] -1
+
+df.loc[~df['IAL_ABLMO_COM'].isin([1,2]),'IAL_ABLMO_COM'] = np.nan
+DF['Money'] = df['IAL_ABLMO_COM']-1
+
+# Cognition
+
+#DF['Mental_alternation_test']
+
+DF['Animal_Recall'] = ((1-(df['COG_AFT_SCORE_1_COM']/df['COG_AFT_SCORE_1_COM'].max())) + 
+                       (1-(df['COG_AFT_SCORE_2_COM']/df['COG_AFT_SCORE_2_COM'].max())))/2
+
+
+DF['immediate_Recall'] = 1-(df['COG_REYI_SCORE_COM']/df['COG_REYI_SCORE_COM'].max())
+
+DF['Delayed_Recall'] = 1-(df['COG_REYII_SCORE_COM']/df['COG_REYII_SCORE_COM'].max())
+
+# Mental Health
+df.loc[df['DEP_FFRT_COM'].isin([-8,8,9]),'DEP_FFRT_COM'] = np.nan
+DF['Effort'] = (4-df['DEP_FFRT_COM'])/3
+
+df.loc[df['DEP_LONLY_COM'].isin([-8,8,9]),'DEP_LONLY_COM'] = np.nan
+DF['Felt_Lonely'] = (4-df['DEP_LONLY_COM'])/3
+
+
+df.loc[df['DEP_GTGO_COM'].isin([-8,8,9]),'DEP_GTGO_COM'] = np.nan
+DF['Get_Going'] = (4-df['DEP_GTGO_COM'])/3
+
+
+
+
+print(DF)
 RAWDF=DF
+
 IsEmpty = DF.isna() | (DF == "")
 DataNA = IsEmpty.sum(axis=1)
-RowsToDrop = DataNA.index[DataNA>FIExaminationCount*0.2]
+RowsToDrop = DataNA.index[DataNA>(FIBloodCount+FIExaminationCount+FISelfRedportCount)*0.2]
 DF.drop(RowsToDrop, inplace=True)
 IsEmpty = DF.isna() | (DF == "")
 NotEmpty = ~IsEmpty
 DataAvailable = NotEmpty.sum(axis=1)
+#print(DataAvailable)
+
+
 
 DeficitsCount = DF.sum(axis=1)
-FIExamination = DeficitsCount/DataAvailable
-FIExaminationData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']].copy()
-FIExaminationData['FI_Examination'] = np.nan
-FIExaminationData.loc[:,'FI_Examination'] = FIExamination
-
-from pathlib import Path
+FICOMBINED = DeficitsCount/DataAvailable
+FICOMBINEDData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']].copy()
+#FICOMBINEDData['FI_COMBINED'] = FICOMBINED
+FICOMBINEDData['FI_COMBINED'] = np.nan
+FICOMBINEDData.loc[:,'FI_COMBINED'] = FICOMBINED
 
 # Define the folder and file name
-output_file = Path(r"E:\CLSA\CLSA\results\FIExamination_BL.xlsx")
+output_file = Path(r"E:\CLSA\CLSA\results\FICOMBINED_BL.xlsx")
 
 # Create the folder automatically if it is missing
 output_file.parent.mkdir(parents=True, exist_ok=True)
 
 # Save the DataFrame
-FIExaminationData.to_excel(output_file, index=False)
-
-
-##sorted_DF = DF.sort_values(by='AGE_NMBR_COM').reset_index(drop=True)
-##print(sorted_DF)
-
-
+FICOMBINEDData.to_excel(output_file, index=False)
 
 
 DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
 DF['SEX_ASK_COM'] = df['SEX_ASK_COM']
-#prevalence(DF, "BLD_Hgb_COM")
-#GroupedPlot(DF,'BLD_Hgb_COM')
-prevalence(FIExaminationData, "FI_Examination")
+#prevalence(DF, "bld_hscrp_com".upper())
+#GroupedPlot(DF,'bld_hscrp_com'.upper())
+prevalence(FICOMBINEDData, "FI_COMBINED")
 
 plt.figure()
-plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination'], color='blue', marker='o', alpha=0.8)
+plt.scatter(FICOMBINEDData['AGE_NMBR_COM'], FICOMBINEDData['FI_COMBINED'], color='blue', marker='o', alpha=0.8)
 
-
+"""
 # plot each parameter vs age and output the prevalence
 AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
 excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
-output_folder=Path(r"E:\CLSA\CLSA\results\FI Examination")
+output_folder=Path(r"E:\CLSA\CLSA\results\FI COMBINED")
 for col in DF.columns:
     if col not in excluded_cols:
         prevalence(DF, col)
@@ -487,57 +711,33 @@ for col in DF.columns:
 
 # 4. Display all Seaborn plots at once
 plt.show()
-
-
+"""
 """
 # plot one specific parameter vs age and output the prevalence
-AGESEX = ['AGE_NMBR_COM','SEX_ASK_COM']
-excluded_cols = set(AGESEX) # Using a set for O(1) membership checking
-
 for col in ['va_etdrs_l_rslt_com'.upper(),'va_etdrs_r_rslt_com'.upper()]:
-    if col not in excluded_cols:
-        prevalence(DF, col)
+    prevalence(DF, col)
 
 # 4. Display all Seaborn plots at once
 plt.show()
 """
 
 
-"""
-# Select boolean columns and overwrite them with 1 and 0
-bool_cols = df.select_dtypes(include='bool').columns
-df[bool_cols] = df[bool_cols].astype(int)
-"""
-""""
-plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination'], color='blue', marker='o', alpha=0.8)
-
-# 3. Add labels and a title
-plt.title("FI Examination Baseline")
-plt.xlabel("Age")
-plt.ylabel("FI Examination")
-
-# 4. Display the graph
-plt.show()
-"""
-
-#prevalence(FIExaminationData, "FI_Examination")
-
-#Plot FI vs age
+# Plot FI vs Age
 
 # Create your plot axis
 fig, ax = plt.subplots(figsize=(6, 5))
 
 # Define your 2 groups and 2 colors
-categories = FIExaminationData["SEX_ASK_COM"].unique()
+categories = FICOMBINEDData["SEX_ASK_COM"].unique()
 colors = ["#1f77b4", "#d62728"]
 # Loop through each group and overlay them on the same axis ('ax=ax')
 for category, color in zip(categories, colors):
-    subset = FIExaminationData[FIExaminationData["SEX_ASK_COM"] == category]
+    subset = FICOMBINEDData[FICOMBINEDData["SEX_ASK_COM"] == category]
 
     sns.regplot(
         data=subset,
         x="AGE_NMBR_COM",
-        y="FI_Examination",
+        y="FI_COMBINED",
         x_bins=np.arange(45, 90, 1), fit_reg=False,
         ax=ax,  # Tells regplot to draw on the same chart
         color=color,
@@ -547,6 +747,7 @@ for category, color in zip(categories, colors):
     )
 
 # Add the legend manually since regplot won't make a grouped one automatically
-ax.legend(title="FI Examination Baseline")
+ax.legend(title="FI Combined Baseline")
 sns.despine(trim=True)
 plt.show()
+
