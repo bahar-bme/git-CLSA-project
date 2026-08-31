@@ -287,12 +287,12 @@ DeficitsCount = DF.sum(axis=1)
 FISelfReport = DeficitsCount/DataAvailable
 FISelfReportData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']].copy()
 #FISelfReportData['FI_SelfReport'] = FISelfReport
-FISelfReportData.loc[:,'FI_SelfReport'] = FISelfReport
+FISelfReportData.loc[:,'FI_SelfReport_CR'] = FISelfReport
 
 from pathlib import Path
 
 # Define the folder and file name
-output_file = Path(r"E:\CLSA\CLSA\results\FISelfReport_BL.xlsx")
+output_file = Path(r"E:\CLSA\CLSA\results\FISelfReport_BL_CR.xlsx")
 
 # Create the folder automatically if it is missing
 output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -310,10 +310,10 @@ plt.ylabel("FI Self Report")
 # 4. Display the graph
 plt.show()
 """
-prevalence(FISelfReportData, "FI_SelfReport")
+prevalence(FISelfReportData, "FI_SelfReport_CR")
 
 plt.figure()
-plt.scatter(FISelfReportData['AGE_NMBR_COM'], FISelfReportData['FI_SelfReport'], color='blue', marker='o', alpha=0.8)
+plt.scatter(FISelfReportData['AGE_NMBR_COM'], FISelfReportData['FI_SelfReport_CR'], color='blue', marker='o', alpha=0.8)
 
 
 # Create your plot axis
@@ -329,7 +329,7 @@ for category, color in zip(categories, colors):
     sns.regplot(
         data=subset,
         x="AGE_NMBR_COM",
-        y="FI_SelfReport",
+        y="FI_SelfReport_CR",
         x_bins=np.arange(45, 90, 1), fit_reg=False,
         ax=ax,  # Tells regplot to draw on the same chart
         color=color,

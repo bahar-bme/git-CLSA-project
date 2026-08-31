@@ -441,13 +441,13 @@ DataAvailable = NotEmpty.sum(axis=1)
 DeficitsCount = DF.sum(axis=1)
 FIExamination = DeficitsCount/DataAvailable
 FIExaminationData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']].copy()
-FIExaminationData['FI_Examination'] = np.nan
-FIExaminationData.loc[:,'FI_Examination'] = FIExamination
+FIExaminationData['FI_Examination_CR'] = np.nan
+FIExaminationData.loc[:,'FI_Examination_CR'] = FIExamination
 
 from pathlib import Path
 
 # Define the folder and file name
-output_file = Path(r"E:\CLSA\CLSA\results\FIExamination_BL.xlsx")
+output_file = Path(r"E:\CLSA\CLSA\results\FIExamination_BL_CR.xlsx")
 
 # Create the folder automatically if it is missing
 output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -466,10 +466,10 @@ DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
 DF['SEX_ASK_COM'] = df['SEX_ASK_COM']
 #prevalence(DF, "BLD_Hgb_COM")
 #GroupedPlot(DF,'BLD_Hgb_COM')
-prevalence(FIExaminationData, "FI_Examination")
+prevalence(FIExaminationData, "FI_Examination_CR")
 
 plt.figure()
-plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination'], color='blue', marker='o', alpha=0.8)
+plt.scatter(FIExaminationData['AGE_NMBR_COM'], FIExaminationData['FI_Examination_CR'], color='blue', marker='o', alpha=0.8)
 
 """
 # plot each parameter vs age and output the prevalence
@@ -538,7 +538,7 @@ for category, color in zip(categories, colors):
     sns.regplot(
         data=subset,
         x="AGE_NMBR_COM",
-        y="FI_Examination",
+        y="FI_Examination_CR",
         x_bins=np.arange(45, 90, 1), fit_reg=False,
         ax=ax,  # Tells regplot to draw on the same chart
         color=color,

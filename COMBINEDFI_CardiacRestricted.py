@@ -672,11 +672,11 @@ DeficitsCount = DF.sum(axis=1)
 FICOMBINED = DeficitsCount/DataAvailable
 FICOMBINEDData = df[['entity_id','AGE_NMBR_COM', 'SEX_ASK_COM']].copy()
 #FICOMBINEDData['FI_COMBINED'] = FICOMBINED
-FICOMBINEDData['FI_COMBINED'] = np.nan
-FICOMBINEDData.loc[:,'FI_COMBINED'] = FICOMBINED
+FICOMBINEDData['FI_COMBINED_CR'] = np.nan
+FICOMBINEDData.loc[:,'FI_COMBINED_CR'] = FICOMBINED
 
 # Define the folder and file name
-output_file = Path(r"E:\CLSA\CLSA\results\FICOMBINED_BL.xlsx")
+output_file = Path(r"E:\CLSA\CLSA\results\FICOMBINED_BL_CR.xlsx")
 
 # Create the folder automatically if it is missing
 output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -689,10 +689,10 @@ DF['AGE_NMBR_COM'] = df['AGE_NMBR_COM']
 DF['SEX_ASK_COM'] = df['SEX_ASK_COM']
 #prevalence(DF, "bld_hscrp_com".upper())
 #GroupedPlot(DF,'bld_hscrp_com'.upper())
-prevalence(FICOMBINEDData, "FI_COMBINED")
+prevalence(FICOMBINEDData, "FI_COMBINED_CR")
 
 plt.figure()
-plt.scatter(FICOMBINEDData['AGE_NMBR_COM'], FICOMBINEDData['FI_COMBINED'], color='blue', marker='o', alpha=0.8)
+plt.scatter(FICOMBINEDData['AGE_NMBR_COM'], FICOMBINEDData['FI_COMBINED_CR'], color='blue', marker='o', alpha=0.8)
 
 """
 # plot each parameter vs age and output the prevalence
@@ -737,7 +737,7 @@ for category, color in zip(categories, colors):
     sns.regplot(
         data=subset,
         x="AGE_NMBR_COM",
-        y="FI_COMBINED",
+        y="FI_COMBINED_CR",
         x_bins=np.arange(45, 90, 1), fit_reg=False,
         ax=ax,  # Tells regplot to draw on the same chart
         color=color,
